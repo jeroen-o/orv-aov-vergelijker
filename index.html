@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ORV- en AOV-vergelijker — TAF, BNP Paribas Cardif, Credit Life</title>
+<style>
+:root{
+  --navy:#0b2e5c; --navy2:#16447f; --accent:#f28c00; --bg:#f3f5f9; --card:#fff; --line:#d9dfe9;
+  --ink:#14233a; --mute:#5b6b82; --ok:#1a7f4b; --okbg:#e5f4ec; --warn:#9a5b00; --warnbg:#fff3dc; --no:#b3261e; --nobg:#fde9e7;
+  --taf:#2a6fb8; --bnp:#00915a; --cl:#7a3fa0;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45}
+header{background:var(--navy);color:#fff;padding:18px 16px 0;border-bottom:4px solid var(--accent)}
+.wrap{max-width:1240px;margin:0 auto}
+h1{margin:0 0 4px;font-size:22px;font-weight:700}
+header p{margin:0 0 14px;color:#c9d6ea;font-size:14px}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:transparent;border:0;color:#c9d6ea;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;border-radius:8px 8px 0 0}
+nav button[aria-selected=true]{background:var(--bg);color:var(--navy)}
+main{padding:18px 16px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.notice{background:var(--warnbg);border:1px solid #f0cf8d;border-left:5px solid var(--accent);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+.notice b{color:var(--warn)}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tools input[type=search]{flex:1 1 220px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font:inherit}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn.alt{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+label.chk{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--mute)}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:860px}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);font-size:14px}
+thead th{position:sticky;top:0;background:#fff;z-index:2;border-bottom:2px solid var(--navy)}
+thead th small{display:block;font-weight:400;color:var(--mute);font-size:12px}
+th.k{width:17%;background:#f7f9fc;font-weight:600;position:sticky;left:0;z-index:1}
+tr.grp th{background:var(--navy);color:#fff;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px}
+.pv{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.src{display:inline-block;margin-left:6px;font-size:11px;color:var(--mute);border:1px solid var(--line);border-radius:10px;padding:0 6px;white-space:nowrap;cursor:help}
+td.warn{background:var(--warnbg)}
+td.warn::before{content:"⚠ ";color:var(--warn);font-weight:700}
+td.na{color:var(--mute);font-style:italic}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.fld label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--navy)}
+.fld input,.fld select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+.fld .eur{position:relative}.fld .eur span{position:absolute;left:10px;top:9px;color:var(--mute)}.fld .eur input{padding-left:26px}
+h2{font-size:17px;margin:0 0 10px;color:var(--navy)}
+h3{font-size:15px;margin:18px 0 8px;color:var(--navy)}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.rc{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;border-top:4px solid var(--line)}
+.rc h4{margin:0 0 6px;font-size:15px}
+.badge{display:inline-block;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:700;margin-bottom:6px}
+.b-ok{background:var(--okbg);color:var(--ok)}.b-warn{background:var(--warnbg);color:var(--warn)}.b-no{background:var(--nobg);color:var(--no)}
+.rc ul{margin:6px 0 0;padding-left:0;list-style:none;font-size:13.5px}.rc li{margin-bottom:3px}
+.rc li.no{color:var(--no)}.rc li.warn{color:var(--warn)}
+.mute{color:var(--mute);font-size:13px}
+footer{color:var(--mute);font-size:12.5px;padding:0 16px 30px}
+@media (max-width:640px){h1{font-size:19px}nav button{padding:9px 10px;font-size:14px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>ORV- en AOV-vergelijker</h1>
+  <p>Voorwaarden en acceptatiegrenzen van TAF, BNP Paribas Cardif en Credit Life — peildatum 12 november 2026</p>
+  <nav id="nav" role="tablist"></nav>
+</div></header>
+<main><div class="wrap">
+  <div class="notice"><b>Let op (compliance):</b> dit is een interne voorwaardenvergelijking op basis van door aanbieders aangeleverde stukken en openbare productkaarten. Geen advies, geen premievergelijking en niet geschikt als klantuiting. De actuele polisvoorwaarden van de aanbieder zijn leidend. Geen van de drie aanbieders heeft tarieven aangeleverd; premies komen uitsluitend uit hun premie-API's/rekentools.</div>
+  <div id="view"></div>
+</div></main>
+<footer><div class="wrap">Samengesteld uit: e-mails TAF, BNP Paribas Cardif en Credit Life d.d. 12-11-2026 met bijlagen, aangevuld met productkaarten en voorwaarden van taf.nl (opgehaald 12-11-2026). Huisstijl: benadering Hypotheekbond. Geen externe API's; gegevens worden niet opgeslagen.</div></footer>
+
+<script>
+"use strict";
+/* ---------- Bronnen ---------- */
+const SRC={
+ T1:["TAF","Productkaart TAF Overlijdensrisicoverzekeringen (TAF-PK-ORV-20260301-a)","taf.nl/downloads"],
+ T2:["TAF","Productkaart TAF Maandlastbeschermer (TAF-PK-MLB-20250804-a); hoort bij QL MLB 12-2022 en IPT MLB 01-2025","taf.nl/downloads"],
+ T3:["TAF","Productkaart TAF Inkomensbeschermer (TAF-PK-TIB-20250804-a); hoort bij IPT TIB 01-2025","taf.nl/downloads"],
+ T4:["TAF","E-mail J. van Lierop (TAF), 12-11-2026","aangeleverd"],
+ T5:["TAF","PrC Documentatie v0.9.12.0 (Premium Calculator API)","aangeleverd"],
+ T6:["TAF","AFV Documentation v1.0.12 (Application Form Validator API)","aangeleverd"],
+ B1:["BNP","Specs Renewed HAV BNP Paribas Cardif for Mortgage software.xlsx — tabblad ‘Specs TAFHAV’, productspecs juni 2026","aangeleverd"],
+ B2:["BNP","Verzekeringskaart Hypotheek Aflos Verzekering, versie 5 d.d. 11-02-2022","aangeleverd"],
+ B3:["BNP","Verzekeringsvoorwaarden Hypotheek Aflos Verzekering HAV1221","aangeleverd"],
+ B4:["BNP","HAVQuotation PremieServer+ Functional Description v5.01 (Schagen Vogels)","aangeleverd"],
+ B5:["BNP","E-mail N. Overduin (BNP Paribas Cardif), 12-11-2026","aangeleverd"],
+ B6:["BNP","Polisvoorwaarden Hypotheek Aflosverzekering versie BNP HA 05-2026 (TAF-PVW-2605-HA-BNP-20260413-a)","taf.nl/polisvoorwaarden"],
+ C1:["CL","Informatieblad Credit Life ORV v3.0 (20220401)","aangeleverd"],
+ C2:["CL","Voorwaarden Credit Life Overlijdensrisicoverzekering 202311","aangeleverd"],
+ C3:["CL","Informatieblad Credit Life Woonlastenverzekering v4.0 (20240501)","aangeleverd"],
+ C4:["CL","Voorwaarden Credit Life Woonlastenverzekering 202405","aangeleverd"],
+ C5:["CL","Informatieblad Credit Life Inkomensgarantie v8.0 (20250201)","aangeleverd"],
+ C6:["CL","Voorwaarden Credit Life Inkomensgarantie 202502","aangeleverd"],
+ C7:["CL","E-mail IT-Innovatie (Credit Life), 12-11-2026","aangeleverd"]
+};
+const NG="Niet genoemd in de beschikbare stukken";
+/* cel = [tekst, bron, 'w' (let op) | 'n' (n.v.t./onbekend)] */
+const CATS={
+orv:{title:"Overlijdensrisico (ORV)",
+ cols:[["TAF ORV","Personal / Special · meerdere verzekeraars","taf"],["BNP Paribas Cardif ORV","uitsluitend via TAF (volmacht)","bnp"],["Credit Life ORV","Credit Life AG","cl"]],
+ rows:[
+ ["Algemeen"],
+ ["Verzekeraar / risicodrager",["TAF in exclusieve volmacht van Quantum Leben, iptiQ, Chubb Life, BNP Paribas Cardif Levensverzekeringen en Zurich Euro-Life.","T1"],["BNP Paribas Cardif Levensverzekeringen (herverzekeraar Swiss Re). BNP verwijst voor de ORV volledig naar TAF; zelf geen ORV-stukken aangeleverd.","B5","w"],["Credit Life AG.","C1"]],
+ ["Voorwaardenversie",["Per verzekeraar: BNP ORV 06-2023, CH ORV 03-2025, IPT ORV 09-2024, QL ORV 10-2023, ZEL ORV 01-2026 (Personal; Special met suffix S).","T4"],["BNP ORV 06-2023 (Personal) en BNPS ORV 06-2023 (Special). Voorwaarden zelf niet aangeleverd; cellen hieronder komen uit de TAF-productkaart.","T4","w"],["Voorwaarden 202311; informatieblad v3.0 van 01-04-2022 (ouder dan de voorwaarden).","C2","w"]],
+ ["Doelgroep / toepassing",["Particulier (hypotheek, nabestaanden, erfbelasting) en zakelijk (compagnon, keyman, belastingclaim).","T1"],["Als TAF ORV.","T1"],["Verzekeringnemer woont in Nederland, heeft een hypotheek en is minimaal 18 jaar.","C1"]],
+ ["Acceptatiegrenzen"],
+ ["Leeftijd bij aanvang",["18 tot 75 jaar (Zurich: tot 65 jaar).","T1"],["18 tot 75 jaar.","T1"],["18 jaar of ouder en jonger dan 75 jaar.","C1"]],
+ ["Maximale eindleeftijd",["85 jaar (Zurich: 80 jaar).","T1"],["85 jaar.","T1"],["Jonger dan 85 jaar op einddatum.","C1"]],
+ ["Verzekerd bedrag",["€ 2.500 – € 6.000.000 (iptiQ max. € 2.000.000; Zurich € 100.000 – € 1.000.000).","T1"],["€ 2.500 – € 6.000.000.","T1"],["€ 25.000 – € 6.000.000.","C1"]],
+ ["Looptijd",["1 tot 50 jaar (Zurich: 5–30 jaar gelijkblijvend, 10–30 jaar dalend).","T1"],["1 tot 40 jaar.","T1"],["5 tot 50 jaar.","C1"]],
+ ["Alleen gezondheidsverklaring t/m",["Tot 50 jaar: € 750.000 (alle verzekeraars). Ouder dan 50: € 352.200 (BNP, Chubb, Zurich) of € 500.000 (iptiQ, Quantum Leben). Daarboven medische keuring.","T1"],["Tot 50 jaar: € 750.000. Ouder dan 50: € 352.200. Daarboven medische keuring.","T1"],["Tot 50 jaar: € 600.000. Vanaf 50 jaar: € 350.000. Daarboven gezondheidsverklaring plus keuring.","C1"]],
+ ["Geldigheid gezondheidsverklaring",["6 maanden bij hypotheekgerelateerde aanvraag, anders 3 maanden.","T1"],["Als TAF ORV.","T1"],["6 maanden; verzekering moet binnen 6 maanden na aanvraagdatum ingaan, verlengen niet mogelijk.","C1"]],
+ ["Geldigheid offerte",["4 weken na offertedatum.","T1"],["4 weken na offertedatum.","T1"],[NG,"C1","n"]],
+ ["Voorlopige dekking",["Max. € 300.000; vóór medische acceptatie alleen overlijden door ongeval; max. 6 maanden (hypotheekgerelateerd) of 3 maanden.","T1"],["Als TAF ORV.","T1"],["Max. € 300.000; tot medische acceptatie alleen overlijden door ongeval; max. 3 maanden.","C1"]],
+ ["Dekking"],
+ ["Dekkingsvormen",["Gelijkblijvend en dalend (lineair/annuïtair) bij alle verzekeraars. Combinatiedekking alleen BNP Personal; stijgend alleen Quantum Leben Personal.","T1"],["Gelijkblijvend, lineair/annuïtair dalend en combinatiedekking (Personal).","T1"],["Gelijkblijvend, lineair of annuïtair dalend; op één of twee levens.","C1"]],
+ ["Voortijdige uitkering bij terminale ziekte",["50% van het verzekerd bedrag (max. € 100.000) bij levensverwachting < 12 maanden en jonger dan 65 jaar. Bij verpanding akkoord geldverstrekker nodig.","T1"],["Als TAF ORV.","T1"],[NG,"C2","n"]],
+ ["Optieclausule (verhogen zonder medische waarborgen)",["Jaarlijks 15% verhogen.","T1"],["Jaarlijks 15% verhogen.","T1"],[NG,"C2","n"]],
+ ["Opties tegen premieopslag",["Premievrijstelling bij AO (> 365 dagen), ongevallendekking € 50.000, kinderdekking € 7.500. Uitkering reservewaarde alleen bij Quantum Leben.","T1"],["Niet mogelijk bij BNP: geen premievrijstelling bij AO, ongevallen- of kinderdekking.","T1","w"],[NG,"C1","n"]],
+ ["Twee levens / kruislings",["Premiesplitsing bij twee verzekeringnemers en twee verzekerden; kruislings verzekeren mogelijk; verschillende bedragen per verzekerde mogelijk.","T1"],["Als TAF ORV.","T1"],["Eén of twee levens; kruislings premie betalen mogelijk.","C1"]],
+ ["Voortzetting na echtscheiding",["Gesplitst voortzetten zonder nieuwe gezondheidsverklaring.","T1"],["Als TAF ORV.","T1"],[NG,"C2","n"]],
+ ["Verpanding",["Gedeeltelijke verpanding mogelijk.","T1"],["Als TAF ORV.","T1"],["Verpanding mogelijk; pandhouder ontvangt polis en wordt betrokken bij opzegging.","C2"]],
+ ["Zelfdoding",["Niet in productkaart; zie polisvoorwaarden per verzekeraar.","T1","n"],["Niet in productkaart; zie BNP ORV 06-2023.","T1","n"],["Geen uitkering bij overlijden door zelfdoding binnen twee jaar na ingangsdatum.","C2"]],
+ ["Terrorisme",["Gedekt.","T1"],["Gedekt.","T1"],["Uitkering volgens NHT-protocol (uitkering kan worden beperkt); melden binnen 2 jaar.","C2"]],
+ ["Premie"],
+ ["Premiegarantie / en-bloc",["Gegarandeerde premie, geen en-blocclausule.","T1"],["Gegarandeerde premie, geen en-blocclausule.","T1"],["Gelijkblijvende premie; geen en-blocclausule.","C1"]],
+ ["Niet-rokerskorting",["Ja, bij minimaal 24 maanden niet roken.","T1"],["Als TAF ORV.","T1"],["Ja, bij twee jaar niet roken (ook nicotinehoudende middelen tellen als roken); kan tijdens looptijd worden uitgevraagd.","C2"]],
+ ["Betaalwijze",["Per maand of per jaar; ineens alleen bij Quantum Leben Personal.","T1"],["Per maand of per jaar.","T1"],["Per maand, kwartaal, halfjaar of jaar via incasso; geen termijnopslag.","C1"]],
+ ["Verkorte premieduur",["Personal: gelijk aan looptijd. Special bij dalend kapitaal: premieduur maximaal 5 jaar ingekort.","T1"],["Als TAF ORV (Personal/Special).","T1"],["Optioneel bij dalende dekking: looptijd t/m 12 jaar → 2/3 van de looptijd (naar beneden afgerond); vanaf 13 jaar → looptijd min 5 jaar.","C1"]],
+ ["Kosten",["Verwerkt in de premie, verdeeld over de premieduur.","T1"],["Als TAF ORV.","T1"],["Geen minimale premie.","C1"]],
+ ["Beheer"],
+ ["Opzegging / afkoop",["Niet in productkaart; zie polisvoorwaarden.","T1","n"],["Niet in productkaart; zie polisvoorwaarden.","T1","n"],["Maandelijks opzegbaar; geen afkoopwaarde, premievrij maken niet mogelijk.","C2"]],
+ ["Aanvragen",["TAF Online Rekentool en HDN.","T1"],["Via TAF: rekentool en HDN.","T1"],["MyCreditLife of HDN; gezondheidsverklaring online door verzekerde.","C1"]],
+ ["Benodigde Wft-vergunning (opgave aanbieder)",[NG,"T1","n"],[NG,"T1","n"],["Volgens Credit Life: Wft Hypothecair krediet als het samenhangt met (her)afsluiten hypotheek, anders Wft Inkomen. Zelf toetsen aan eigen vergunning.","C1","w"]],
+ ["Aangekondigd voor 2027",["Nieuwe BNP ORV-tarieven voor Personal, Special en Woongarant.","T4","w"],["Nieuwe tarieven (via TAF aangekondigd); BNP zelf meldt geen wijzigingen voor de HAV.","T4","w"],["Geen opgave ontvangen.","C7","n"]]
+ ]},
+wl:{title:"Woonlasten / hypotheek bij AO en WW",
+ cols:[["TAF Maandlastbeschermer","iptiQ of Quantum Leben","taf"],["BNP Hypotheek Aflos Verzekering","BNP Paribas Cardif Schade · administratie TAF","bnp"],["Credit Life Woonlastenverzekering","RheinLand Versicherungs AG","cl"]],
+ rows:[
+ ["Algemeen"],
+ ["Soort uitkering",["Vast maandbedrag bij arbeidsongeschiktheid (en optioneel werkloosheid).","T2"],["Eenmalige aflossing op de hypotheek bij instroom in de WIA; verzekerd bedrag daalt annuïtair (rekenrente 1–8%). Werkloosheid: maandbedrag.","B1","w"],["Vast maandbedrag bij arbeidsongeschiktheid (en optioneel werkloosheid).","C3"]],
+ ["Verzekeraar",["iptiQ Life S.A. of Quantum Leben (werkloosheid alleen Quantum Leben).","T2"],["BNP Paribas Cardif Schadeverzekeringen; vernieuwde versie loopt via TAF als administrateur.","B6"],["Credit Life, handelsnaam van RheinLand Versicherungs AG.","C3"]],
+ ["Voorwaardenversie",["QL MLB 12-2022 en IPT MLB 01-2025.","T2"],["BNP stuurde HAV1221 en verzekeringskaart uit 2022 mee, maar productspecs van juni 2026. Op taf.nl staat versie BNP HA 05-2026. Deze kolom volgt de specs van juni 2026; afwijkingen HAV1221 zijn benoemd.","B6","w"],["Voorwaarden 202405; informatieblad v4.0 (01-05-2024).","C4"]],
+ ["Doelgroep",["Werknemers in loondienst met eigen woning, minimaal 16 uur werkzaam in Nederland.","T2"],["Werknemers (min. 16 uur) met hypotheek op de eigen hoofdwoning, wonend en werkend in Nederland. Niet voor zelfstandigen. Verzekeringnemer = verzekerde, max. één per polis.","B1"],["Werknemers met koop- óf huurwoning; minimaal 16 uur, vast of tijdelijk (flex) dienstverband.","C3"]],
+ ["Acceptatiegrenzen"],
+ ["Leeftijd bij aanvang",["18 tot 62 jaar (beperkingen per beroep mogelijk).","T2"],["Vanaf 18 jaar; AO-dekking tot 60 jaar. Werkloosheid: specs noemen zowel ‘tot 55’ als ‘niet vanaf 50 jaar’ — navragen.","B1","w"],["18 t/m 61 jaar.","C3"]],
+ ["Maximale eindleeftijd",["AOW-leeftijd, maximaal 70 jaar.","T2"],["Eerste dag van de maand waarin verzekerde 67 wordt; eindigt ook bij AOW/pensionering.","B1"],["Tot 70 jaar; stopt eerder bij bereiken AOW-leeftijd.","C3"]],
+ ["Looptijd",["Vanaf 5 jaar tot gekozen einddatum.","T2"],["5 – 30 jaar; jaarcontract dat telkens 12 maanden stilzwijgend verlengt tot einde uitkeringsschema.","B1"],["Minimaal 5 jaar.","C3"]],
+ ["Verzekerd bedrag AO",["€ 150 – € 2.500 per maand, max. 125% van de bruto woonlasten bij ingang (rente, aflossing, premie ORV/opstal/inboedel, energie, VvE).","T2"],["Eenmalig € 50.000 – € 300.000, max. 60% van de hypotheekschuld bij start. Bestaande hypotheek en ouder dan 50: max. € 200.000. Uitkering nooit hoger dan de actuele hypotheekschuld.","B1"],["€ 125 – € 2.500 per maand.","C3"]],
+ ["Medische acceptatie",["Online gezondheidsverklaring; beoordeling door onafhankelijk medisch adviesbureau.","T2"],["Specs juni 2026: volledige medische acceptatie via TAF-gezondheidsverklaring; BMI onder 18 of boven 32 wordt niet geaccepteerd. HAV1221: geen acceptatie vooraf maar uitsluiting bestaande aandoeningen.","B1","w"],["Online gezondheidsverklaring; BMI vanaf 35 uitgesloten; clausule of premieopslag mogelijk.","C3"]],
+ ["Beroepen",["Beroepenlijst met beperkingen/uitsluitingen (o.a. voor criterium beroepsarbeid).","T2"],["Beroepenlijst: sommige beroepen uitgesloten; voor enkele klasse 4-beroepen lagere eindleeftijd. Ook toetsing risicovolle hobby's, strafrechtelijk verleden, voorzienbare werkloosheid.","B1"],[NG,"C3","n"]],
+ ["Voorlopige dekking",["AO door ongeval, maximaal 3 maanden.","T2"],["AO door ongeval, 3 maanden vanaf ontvangst aanvraag; vervalt als gezondheidsverklaring niet binnen 30 dagen is ingevuld.","B1"],["Vanaf ontvangst aanvraag: ongeval; vanaf medisch akkoord: alle nieuwe stoornissen.","C3"]],
+ ["Arbeidsongeschiktheid"],
+ ["Dekkingsvarianten",["Eén AO-dekking; uitkeringstype pro rato of volledig.","T2"],["Eén AO-dekking; psychische oorzaken standaard meeverzekerd, kunnen na medische beoordeling worden uitgesloten (zonder premie-effect).","B1"],["Compleet (ziekte en ongeval) of Basis (alleen ongeval).","C3"]],
+ ["AO-criterium",["Jaar 1 en 2 beroepsarbeid; daarna keuze beroepsarbeid, passende arbeid of gangbare arbeid.","T2"],["UWV-volgend: minimaal 35% arbeidsongeschikt én recht op WIA-uitkering op basis van definitieve beslissing (geen voorschot).","B1"],["Eerste 2 jaar beroepsarbeid; daarna keuze gangbare, passende of beroepsarbeid.","C3"]],
+ ["Uitkeringsdrempel en -hoogte",["Vanaf meer dan 35% AO; keuze pro rato of volledig bedrag.","T2"],["Vanaf 35% (WIA): volledig bedrag volgens uitkeringsschema.","B1"],["Vanaf 35% AO het volledige maandbedrag.","C3"]],
+ ["Eigen risico / wachttijd",["180, 365 of 730 dagen.","T2"],["Geen keuze: uitkering op ingangsdatum WIA (doorgaans na 2 jaar).","B1"],["365 of 730 dagen.","C3"]],
+ ["Uitkeringsduur",["2, 5 of 10 jaar of tot einde looptijd (verminderd met eigenrisicoperiode).","T2"],["Eenmalig; verzekering eindigt na de AO-uitkering.","B1","w"],["Tot einde verzekering; geen maximum.","C3"]],
+ ["Carenz / inloopperiode AO",[NG,"T2","n"],["Specs juni 2026: geen dekking voor AO die ontstaat binnen 1 maand na invullen gezondheidsverklaring (behalve ongeval). HAV1221/verzekeringskaart: inloopperiode 3 maanden.","B1","w"],["Geen; dekking direct vanaf ingangsdatum.","C3"]],
+ ["Begunstiging",["Uitkering o.b.v. verzekerd bedrag; verhuizen of wijziging woonlasten heeft geen invloed.","T2"],["AO-uitkering gaat in principe naar de geldverstrekker (boetevrije deel wordt afgelost). Kiest klant een andere bestemming, dan mag verzekeraar de uitkering met 50% verlagen.","B1","w"],["Rechtstreeks aan verzekerde.","C3"]],
+ ["Extra's",["Onbeperkt toegang tot Royal Doctors (second opinion, mentale steun e.d.).","T2"],["Geen.","B1","n"],["€ 3.000 extra bij IVA-uitkering; ziekenhuisdaggeld € 35 per dag (max. € 1.050).","C3"]],
+ ["Werkloosheid (optioneel)"],
+ ["Beschikbaarheid",["Optioneel, alleen bij Quantum Leben.","T2"],["Alleen bij start polis én nieuwe hypotheek (< 4 maanden oud); niet bij bestaande hypotheek. Kan later wel worden verwijderd.","B1","w"],["Optioneel, alleen bij aanvang en alleen i.c.m. AO Compleet.","C3"]],
+ ["Verzekerd bedrag WW",["€ 150 – € 2.500, max. 125% van het AO-bedrag.","T2"],["€ 250 per maand per € 100.000 hypotheek, min. € 250, max. € 1.000 per maand.","B1"],["Max. 25% hoger dan het AO-maandbedrag (min. € 125, max. € 2.500).","C3"]],
+ ["Moment van uitkeren",["Eerste 12 maanden uitkering zolang werkloos, ook als WW-recht korter is.","T2"],["Pas ná afloop van de WW-uitkering van het UWV (maximale duur bereikt) en alleen bij volledige werkloosheid.","B1","w"],["Tijdens werkloosheid; stopt de WW eerder vanwege arbeidsverleden, dan doorbetaling tot 12 maanden.","C3"]],
+ ["Uitkeringsduur WW",["12 of 24 maanden per claim; maximaal 24 maanden per verzekering.","T2"],["Maximaal 12 maanden per polis (alle jaarcontracten samen).","B1"],["12 of 24 maanden per claim; onbeperkt aantal claims.","C3"]],
+ ["No-claim / carenz WW",["180 dagen na ingangsdatum.","T2"],["Eerste 6 maanden van de polis én eerste 3 maanden na start nieuwe baan.","B1"],["180 dagen na ingangsdatum.","C3"]],
+ ["Gedeeltelijk / tijdelijk contract",[NG,"T2","n"],["Geen uitkering bij gedeeltelijke werkloosheid, aflopen tijdelijk contract, seizoens-/uitzendwerk.","B1"],["Gedeeltelijk naar rato; geen uitkering bij niet verlengen tijdelijk contract.","C3"]],
+ ["Premie en fiscaal"],
+ ["Fiscale behandeling",["Keuze netto (uitkering onbelast) of bruto (premie aftrekbaar, uitkering belast).","T2"],["Netto: premie niet aftrekbaar, uitkering onbelast.","B1"],["AO: keuze netto of bruto. WW: altijd netto.","C3"]],
+ ["Premiebepaling",["Via TAF Rekentool / Premium Calculator.","T4"],["Aparte premie AO en WW; geslacht en roken geen invloed; korting bij nieuwe hypotheek t.o.v. bestaande.","B1"],["Via premie-API / MyCreditLife.","C7"]],
+ ["Premievrijstelling / premieduur",["Bij uitkering, en vanaf het moment dat de resterende looptijd gelijk is aan de eigenrisicoperiode.","T2"],["Geen premievrijstelling; premiebetaling stopt 24 maanden vóór einddatum.","B1"],["Bij uitkering vrijstelling van de gehele premie.","C3"]],
+ ["Poliskosten",["Eenmalig € 18.","T2"],["€ 20.","B1"],[NG,"C3","n"]],
+ ["Tussentijdse wijziging premie/voorwaarden",["In uitzonderlijke gevallen voor alle of een groep verzekerden.","T2"],["Jaarcontract; wijziging tarieven en/of voorwaarden mogelijk (art. 11 BNP HA 05-2026).","B6","w"],["En-bloc mogelijk als de financiële positie van de verzekeraar onverantwoord verslechtert.","C3"]],
+ ["Beheer"],
+ ["Opzegging",["Maandelijks.","T2"],["Specs: na 12 maanden per de 1e van de maand, opzegtermijn max. 1 maand; 1 maand bedenktijd. Verzekeringskaart 2022: dagelijks met 1 maand opzegtermijn.","B1","w"],["Maandelijks.","C3"]],
+ ["Aanpassen verzekerd bedrag",["Onderhoudsregeling: max. 20% aanpassen (Quantum Leben eens per 5 jaar; iptiQ bij life events).","T2"],["Alleen verlagen. Bij hogere hypotheek een aanvullende polis (max. 2 extra), totaal max. € 300.000 en 60%.","B1"],[NG,"C3","n"]],
+ ["Einde verzekering bij",["Einddatum / AOW.","T2"],["O.a. AO-uitkering, geen hypotheek meer, > 1 jaar minder dan 16 uur, zelfstandige worden, emigratie, AOW.","B1","w"],["Einddatum / AOW. Meldplicht bij o.a. > 2 maanden buitenland of beroepswijziging.","C4"]],
+ ["Meldtermijn ziekte",[NG,"T2","n"],["WIA-beslissingsbrief aanleveren.","B1"],["Schriftelijk binnen 3 maanden na eerste ziektedag.","C3"]],
+ ["Aangekondigd voor 2027",["Geen opgave voor dit product.","T4","n"],["Geen wijzigingen gepland.","B5"],["Geen opgave ontvangen.","C7","n"]]
+ ]},
+ink:{title:"Inkomen bij AO (WIA-aanvulling)",
+ cols:[["TAF Inkomensbeschermer","iptiQ Life S.A. → Squarelife","taf"],["BNP Paribas Cardif","geen product","bnp"],["Credit Life Inkomensgarantie","RheinLand Versicherungs AG","cl"]],
+ rows:[
+ ["Algemeen"],
+ ["Verzekeraar",["iptiQ Life S.A. Nieuwe productie via iptiQ stopt per 1 december 2026; daarna vernieuwde propositie bij Squarelife Insurance AG (herverzekeraar Hannover Re).","T4","w"],["Geen inkomensverzekering aangeleverd.","B5","n"],["Credit Life, handelsnaam van RheinLand Versicherungs AG.","C5"]],
+ ["Voorwaardenversie",["IPT TIB 01-2025 (voorwaarden Squarelife-variant nog niet ontvangen).","T3","w"],["—","B5","n"],["Voorwaarden 202502; informatieblad v8.0 (01-02-2025).","C6"]],
+ ["Doelgroep",["Werknemers, min. 16 uur in loondienst in Nederland; huiseigenaren, huurders en thuiswonende kinderen.","T3"],["—","B5","n"],["Werknemers, min. 16 uur. Zelfstandigen en DGA's niet verzekerbaar.","C5"]],
+ ["Acceptatiegrenzen"],
+ ["Leeftijd bij aanvang",["18 tot 62 jaar (beperkingen per beroep mogelijk).","T3"],["—","B5","n"],["18 t/m 61 jaar.","C5"]],
+ ["Maximale eindleeftijd",["AOW-leeftijd, maximaal 70 jaar.","T3"],["—","B5","n"],["Tot 70 jaar; stopt eerder bij AOW-leeftijd.","C5"]],
+ ["Looptijd",["Vanaf 5 jaar.","T3"],["—","B5","n"],["Minimaal 5 jaar.","C5"]],
+ ["Medische acceptatie",["Online gezondheidsverklaring.","T3"],["—","B5","n"],["Online gezondheidsverklaring; niet nodig bij Basis (ongevallen). BMI vanaf 35 uitgesloten.","C5"]],
+ ["Voorlopige dekking",["AO door ongeval, maximaal 3 maanden.","T3"],["—","B5","n"],["Vanaf ontvangst aanvraag: ongeval; vanaf medisch akkoord: alle nieuwe stoornissen.","C5"]],
+ ["Dekking"],
+ ["Verzekerd inkomen",["70–90% van het opgegeven inkomen (of lager laatstverdiend inkomen); verzekerd maandinkomen max. € 7.500.","T3"],["—","B5","n"],["70–100% van het laatstverdiende inkomen; maandinkomen gemaximeerd op € 10.000 (€ 120.000 per jaar).","C5"]],
+ ["Werking",["Vult het verschil aan tussen verzekerd maandinkomen en gedaald inkomen (WIA, sociale voorzieningen, andere AO-verzekeringen; lastenverzekeringen tellen niet mee).","T3"],["—","B5","n"],["Vult inkomen aan tot gegarandeerd maandinkomen; kent een minimumuitkering, ook bij niet benutten restverdiencapaciteit. Woonlastenuitkering telt niet mee.","C5"]],
+ ["Dekkingsvarianten",["Eén dekking.","T3"],["—","B5","n"],["Compleet of Basis (alleen ongeval).","C5"]],
+ ["Start uitkering",["Bij WIA-uitkering; optioneel na het eerste ziektejaar (dan minimaal 75% verzekeren).","T3"],["—","B5","n"],["Keuze: na eerste jaar AO of bij aanvang WIA. Tweede ziektejaar: uitgegaan van minimaal 70% loon.","C5"]],
+ ["Claimbeoordeling",["UWV-volgend (tenzij clausules).","T3"],["—","B5","n"],["Inkomen en AO vastgesteld door UWV (tweede ziektejaar: werkgever).","C5"]],
+ ["Uitkeringsduur",["Zolang er WIA-uitkering is, uiterlijk tot einddatum.","T3"],["—","B5","n"],["Maximaal gedurende de looptijd; geen maximumbedrag.","C5"]],
+ ["Indexatie uitkering",["Optioneel; jaarlijks per 1 januari, volgt WIA, max. 3%.","T3"],["—","B5","n"],["Optioneel; halfjaarlijks, volgt minimumloon, max. 2% per kalenderjaar.","C5"]],
+ ["Verhogen zonder gezondheidsvragen",["Vanaf 12 maanden na ingang max. 10%, daarna telkens na 12 maanden opnieuw; jaarlijkse inkomenscheck.","T3"],["—","B5","n"],["1× per jaar naar rato van inkomensstijging, mits 180 dagen volledig arbeidsgeschikt, werkend en geen (dreigend) ontslag bekend.","C5"]],
+ ["Werkloosheidsdekking",["Niet beschikbaar.","T3","n"],["—","B5","n"],["Optioneel (alleen met Compleet): € 125 tot 20% van bruto maandinkomen (max. € 10.000); 12 of 24 maanden per claim; carenz 180 dagen; netto.","C5"]],
+ ["Extra's",["Onbeperkt toegang tot Royal Doctors.","T3"],["—","B5","n"],["€ 3.000 extra bij IVA; ziekenhuisdaggeld € 35 per dag (max. € 1.050).","C5"]],
+ ["Premie en beheer"],
+ ["Fiscale behandeling",["Bruto: premie aftrekbaar, uitkering belast.","T3"],["—","B5","n"],["Bruto: premie aftrekbaar, loonbelasting op uitkering. Werkloosheidsdekking netto.","C5"]],
+ ["Premievrijstelling",["Bij AO-uitkering; laatste twee jaar van de looptijd altijd premievrij.","T3"],["—","B5","n"],["Bij uitkering volledig; laatste 2 jaar premievrij.","C5"]],
+ ["Poliskosten",["Eenmalig € 18.","T3"],["—","B5","n"],[NG,"C5","n"]],
+ ["Tussentijdse wijziging premie/voorwaarden",["In uitzonderlijke gevallen voor alle of een groep verzekerden.","T3"],["—","B5","n"],["En-bloc mogelijk als de financiële positie van de verzekeraar onverantwoord verslechtert.","C5"]],
+ ["Opzegging",["Maandelijks.","T3"],["—","B5","n"],["Maandelijks.","C5"]],
+ ["Meldtermijn ziekte",[NG,"T3","n"],["—","B5","n"],["Schriftelijk binnen 3 maanden na eerste ziektedag.","C5"]],
+ ["Aangekondigd voor 2027",["Overgang naar Squarelife; bestaande polissen houden hun voorwaarden.","T4","w"],["—","B5","n"],["Geen opgave ontvangen.","C7","n"]]
+ ]}
+};
+const API=[
+ ["Tarieven aangeleverd?",["Nee. Premies worden dynamisch berekend; uitkomst rekensoftware/Premium Calculator is leidend. Geen statisch premieblad.","T4"],["Nee. ‘Hebben we niet, we werken met een premieserver.’ MoneyView heeft de premie ingebouwd.","B5"],["Nee. Uitsluitend een premie-API.","C7"]],
+ ["Koppeling",["Premium Calculator (PrC) v0.9.12.0: premies voor o.a. ORV, Maandlastbeschermer, Inkomensbeschermer, Hypotheekbeschermer (HB), GoedGezekerd, nabestaanden- en ongevallenproducten. Application Form Validator (AFV) v1.0.12: valideren en indienen aanvragen, beroepenlijst.","T5"],["PremieServer+ webservice ‘HAVQuotationExec3’ (Schagen Vogels, v5.01, SOAP/WSDL), productcode CARD3, tot 9 leningdelen; levert offerte én premie.","B4"],["Premie-API; documentatie niet meegestuurd. Aanvragen via MyCreditLife en HDN.","C7"]],
+ ["Voorwaarden via API?",["Nee; documenten via taf.nl en het Tussenpersoon Portaal.","T4"],["Nee.","B5"],["Nee; documenten via creditlife.nl.","C7"]],
+ ["Wijzigingen communiceren",["Vooraf aan software- en distributiepartners; voor Blinqx rechtstreeks afgestemd met de vaste contactpersoon bij Blinqx.","T4"],["Geen proces beschreven.","B5","n"],["Per e-mail aan alle betrokken partijen vanuit de afdeling IT-Innovatie.","C7"]],
+ ["Overige kanalen",["TAF Online Rekentool, adviessoftware, MoneyView, HDN.","T4"],["MoneyView; distributie vernieuwde HAV via TAF.","B5"],["MyCreditLife, HDN, Credit Life Inkomensplanner.","C3"]]
+];
+const OPEN=[
+ "BNP: aangeleverde voorwaarden (HAV1221) en verzekeringskaart (2022) zijn ouder dan de productspecs (juni 2026) en de versie BNP HA 05-2026 op taf.nl. Vraag BNP/TAF welke versie voor nieuwe productie geldt en per wanneer.",
+ "BNP: maximale aanvangsleeftijd werkloosheidsdekking is in de specs tegenstrijdig (regel 6: tot 55 jaar; regel 41: niet vanaf 50 jaar).",
+ "BNP: opzegregeling verschilt tussen specs (na 12 maanden, per maand) en verzekeringskaart 2022 (dagelijks).",
+ "BNP ORV: geen eigen stukken; alle BNP ORV-gegevens komen uit de generieke TAF-productkaart. Polisvoorwaarden BNP ORV 06-2023 nog inhoudelijk te verwerken.",
+ "TAF: polisvoorwaarden zelf zijn als links aangeleverd; deze vergelijker gebruikt de productkaarten. Details als uitsluitingen, zelfdoding en opzegging ORV ontbreken daardoor.",
+ "TAF: Inkomensbeschermer gaat per 1-12-2026 naar Squarelife; nieuwe voorwaarden en productkaart nog niet beschikbaar.",
+ "Credit Life: informatieblad ORV (2022) is ouder dan de voorwaarden (202311); acceptatiegrenzen laten bevestigen. Geen opgave van wijzigingen 2027 en geen API-documentatie ontvangen.",
+ "Tarieven: voor een premievergelijking zijn API-aansluitingen nodig (TAF PrC, PremieServer+ BNP, premie-API Credit Life)."
+];
+
+/* ---------- Helpers ---------- */
+const $=(s,p=document)=>p.querySelector(s);
+const el=(t,a={},...ch)=>{const e=document.createElement(t);for(const k in a){if(k==="class")e.className=a[k];else if(k==="text")e.textContent=a[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),a[k]);else e.setAttribute(k,a[k]);}ch.flat().forEach(c=>e.append(c));return e;};
+const eur=n=>"€ "+Math.round(n).toLocaleString("nl-NL");
+const num=s=>{const v=parseFloat(String(s).replace(/\./g,"").replace(",","."));return isNaN(v)?0:v;};
+const PCOL={taf:"var(--taf)",bnp:"var(--bnp)",cl:"var(--cl)"};
+function srcTag(k){const s=SRC[k];return el("span",{class:"src",title:s?s[1]+" ("+s[2]+")":"",text:k});}
+
+/* ---------- Vergelijkingstabel ---------- */
+let filterTxt="", onlyWarn=false;
+function buildTable(cols,rows){
+  const tb=el("tbody");
+  let pendingGrp=null;
+  rows.forEach(r=>{
+    if(r.length===1){pendingGrp=r[0];return;}
+    const txt=(r[0]+" "+r.slice(1).map(c=>c[0]).join(" ")).toLowerCase();
+    if(filterTxt&&!txt.includes(filterTxt))return;
+    if(onlyWarn&&!r.slice(1).some(c=>c[2]==="w"))return;
+    if(pendingGrp){tb.append(el("tr",{class:"grp"},el("th",{colspan:cols.length+1,text:pendingGrp})));pendingGrp=null;}
+    tb.append(el("tr",{},el("th",{class:"k",scope:"row",text:r[0]}),r.slice(1).map(c=>{
+      const td=el("td",{class:c[2]==="w"?"warn":c[2]==="n"?"na":""});td.append(c[0]," ",srcTag(c[1]));return td;})));
+  });
+  if(!tb.children.length)tb.append(el("tr",{},el("td",{colspan:cols.length+1,class:"na",text:"Geen kenmerken gevonden."})));
+  return el("div",{class:"tblwrap"},el("table",{},el("thead",{},el("tr",{},el("th",{class:"k",text:"Kenmerk"}),
+    cols.map(c=>{const th=el("th",{});th.append(el("span",{class:"pv",style:"background:"+PCOL[c[2]]}),c[0],el("small",{text:c[1]}));return th;}))),tb));
+}
+function viewCat(key){
+  const c=CATS[key],host=el("div");
+  const tbl=el("div");
+  const draw=()=>{tbl.replaceChildren(buildTable(c.cols,c.rows));};
+  host.append(el("div",{class:"tools"},
+    el("input",{type:"search",placeholder:"Zoek kenmerk of tekst…",value:filterTxt,"aria-label":"Zoeken",oninput:e=>{filterTxt=e.target.value.trim().toLowerCase();draw();}}),
+    (()=>{const l=el("label",{class:"chk"}),i=el("input",{type:"checkbox",onchange:e=>{onlyWarn=e.target.checked;draw();}});i.checked=onlyWarn;l.append(i,"Alleen aandachtspunten (⚠)");return l;})(),
+    el("button",{class:"btn alt",text:"Afdrukken",onclick:()=>printView(c.title,tbl)})),tbl,
+    el("p",{class:"mute",text:"Het label achter elke cel verwijst naar de bron (zie tabblad Bronnen; beweeg over het label voor de documentnaam). Cursief = niet genoemd of niet van toepassing."}));
+  draw();return host;
+}
+
+/* ---------- Klantcheck ---------- */
+const st={leeftijd:35,duur:30,werk:"ld16",woning:"koop",hyp:350000,hypNieuw:"ja",orv:250000,maand:1200,inkomen:4500,bmi:"",ww:"ja"};
+function fld(label,key,type,opts){
+  const w=el("div",{class:"fld"},el("label",{for:"f_"+key,text:label}));
+  let inp;
+  if(type==="sel"){inp=el("select",{id:"f_"+key},opts.map(o=>{const op=el("option",{value:o[0],text:o[1]});if(st[key]===o[0])op.selected=true;return op;}));inp.addEventListener("change",()=>{st[key]=inp.value;drawCheck();});w.append(inp);}
+  else if(type==="eur"){inp=el("input",{id:"f_"+key,type:"text",inputmode:"numeric",value:Math.round(st[key]).toLocaleString("nl-NL")});
+    inp.addEventListener("input",()=>{const v=num(inp.value.replace(/[^\d]/g,""));st[key]=v;inp.value=v?v.toLocaleString("nl-NL"):"";drawCheck();});
+    w.append(el("div",{class:"eur"},el("span",{text:"€"}),inp));}
+  else{inp=el("input",{id:"f_"+key,type:"text",inputmode:"decimal",value:st[key]});inp.addEventListener("input",()=>{st[key]=inp.value===""?"":num(inp.value);drawCheck();});w.append(inp);}
+  return w;
+}
+function evalAll(){
+  const a=+st.leeftijd||0,d=+st.duur||0,end=a+d,ld=st.werk==="ld16",koop=st.woning==="koop",bmi=st.bmi===""?null:+st.bmi,H=st.hyp,ww=st.ww==="ja";
+  const R=(name,p)=>({name,p,items:[],add(t,s){this.items.push([t,s||"ok"]);return this;}});
+  const rng=(r,ok,okT,noT)=>r.add(ok?okT:noT,ok?"ok":"no");
+  const out={orv:[],wl:[],ink:[]};
+  /* ORV */
+  let r=R("TAF ORV (generiek)","taf");
+  rng(r,a>=18&&a<75,"Leeftijd binnen 18–75 jaar","Leeftijd buiten 18–75 jaar");
+  rng(r,end<=85,"Eindleeftijd "+end+" ≤ 85","Eindleeftijd "+end+" hoger dan 85");
+  rng(r,d>=1&&d<=50,"Looptijd binnen 1–50 jaar","Looptijd buiten 1–50 jaar");
+  rng(r,st.orv>=2500&&st.orv<=6e6,"Verzekerd bedrag binnen € 2.500 – € 6.000.000","Verzekerd bedrag buiten € 2.500 – € 6.000.000");
+  if(a<50)r.add(st.orv>750000?"Medische keuring nodig (boven € 750.000)":"Alleen gezondheidsverklaring",st.orv>750000?"warn":"ok");
+  else r.add(st.orv>500000?"Medische keuring bij alle verzekeraars":st.orv>352200?"Keuring bij BNP/Chubb/Zurich; alleen gezondheidsverklaring bij iptiQ/Quantum Leben":"Alleen gezondheidsverklaring",st.orv>352200?"warn":"ok");
+  if(a>=65||end>80||st.orv<100000||st.orv>1e6||d>30)r.add("Zurich valt af (eigen grenzen)","warn");
+  if(st.orv>2e6)r.add("iptiQ valt af (max. € 2.000.000)","warn");
+  out.orv.push(r);
+  r=R("BNP Paribas Cardif ORV (via TAF)","bnp");
+  rng(r,a>=18&&a<75,"Leeftijd binnen 18–75 jaar","Leeftijd buiten 18–75 jaar");
+  rng(r,end<=85,"Eindleeftijd "+end+" ≤ 85","Eindleeftijd "+end+" hoger dan 85");
+  rng(r,d>=1&&d<=40,"Looptijd binnen 1–40 jaar","Looptijd buiten 1–40 jaar");
+  rng(r,st.orv>=2500&&st.orv<=6e6,"Verzekerd bedrag binnen grenzen","Verzekerd bedrag buiten € 2.500 – € 6.000.000");
+  {const g=a<50?750000:352200;r.add(st.orv>g?"Medische keuring nodig (boven "+eur(g)+")":"Alleen gezondheidsverklaring",st.orv>g?"warn":"ok");}
+  r.add("Geen premievrijstelling bij AO, ongevallen- of kinderdekking","warn");
+  out.orv.push(r);
+  r=R("Credit Life ORV","cl");
+  rng(r,koop,"Hypotheek aanwezig","Vereist een hypotheek");
+  rng(r,a>=18&&a<75,"Leeftijd binnen 18–75 jaar","Leeftijd buiten 18–75 jaar");
+  rng(r,end<85,"Eindleeftijd "+end+" < 85","Eindleeftijd "+end+" niet lager dan 85");
+  rng(r,d>=5&&d<=50,"Looptijd binnen 5–50 jaar","Looptijd buiten 5–50 jaar");
+  rng(r,st.orv>=25000&&st.orv<=6e6,"Verzekerd bedrag binnen € 25.000 – € 6.000.000","Verzekerd bedrag buiten € 25.000 – € 6.000.000");
+  {const g=a<50?600000:350000;r.add(st.orv>g?"Gezondheidsverklaring plus keuring (boven "+eur(g)+")":"Alleen gezondheidsverklaring",st.orv>g?"warn":"ok");}
+  out.orv.push(r);
+  /* Woonlasten */
+  r=R("TAF Maandlastbeschermer","taf");
+  rng(r,ld,"Loondienst ≥ 16 uur","Alleen voor werknemers met minimaal 16 uur");
+  rng(r,koop,"Eigen woning","Productkaart vereist een eigen woning");
+  rng(r,a>=18&&a<=62,"Leeftijd binnen 18–62 jaar","Leeftijd buiten 18–62 jaar");
+  rng(r,d>=5,"Looptijd ≥ 5 jaar","Looptijd korter dan 5 jaar");
+  rng(r,end<=70,"Eindleeftijd "+end+" ≤ 70 (uiterlijk AOW-leeftijd)","Eindleeftijd "+end+" hoger dan 70");
+  rng(r,st.maand>=150&&st.maand<=2500,"Maandbedrag binnen € 150 – € 2.500","Maandbedrag buiten € 150 – € 2.500");
+  r.add("Maandbedrag max. 125% van bruto woonlasten — zelf toetsen","warn");
+  if(ww)r.add("Werkloosheidsdekking alleen bij Quantum Leben","warn");
+  out.wl.push(r);
+  r=R("BNP Hypotheek Aflos Verzekering","bnp");
+  rng(r,ld,"Loondienst ≥ 16 uur","Alleen voor werknemers met minimaal 16 uur; niet voor zelfstandigen");
+  rng(r,koop&&H>0,"Hypotheek op eigen woning","Vereist een hypotheek op de eigen hoofdwoning");
+  rng(r,a>=18&&a<60,"Leeftijd binnen 18–60 jaar","Leeftijd buiten 18–60 jaar");
+  rng(r,d>=5&&d<=30,"Looptijd binnen 5–30 jaar","Looptijd buiten 5–30 jaar");
+  r.add(end<=67?"Eindleeftijd "+end+" ≤ 67":"Eindleeftijd "+end+" > 67: looptijd wordt begrensd op 67 jaar",end<=67?"ok":"warn");
+  {let mx=Math.min(0.6*H,300000);if(st.hypNieuw!=="ja"&&a>50)mx=Math.min(mx,200000);
+   rng(r,mx>=50000,"Maximaal verzekerd bedrag AO (eenmalig): "+eur(mx),"60% van de hypotheek ("+eur(0.6*H)+") is lager dan het minimum van € 50.000");}
+  if(bmi!==null)rng(r,bmi>=18&&bmi<=32,"BMI binnen 18–32","BMI buiten 18–32: wordt niet geaccepteerd");
+  if(ww){if(st.hypNieuw!=="ja")r.add("Werkloosheidsdekking niet mogelijk bij bestaande hypotheek","no");
+    else if(a>=55)r.add("Werkloosheidsdekking niet mogelijk vanaf 55 jaar","no");
+    else{if(a>=50)r.add("Werkloosheidsdekking 50–54 jaar: specs tegenstrijdig, navragen","warn");
+      r.add("Werkloosheid indicatief: "+eur(Math.max(250,Math.min(1000,H/100000*250)))+" per maand, max. 12 maanden, pas ná einde WW-uitkering","warn");}}
+  r.add("Eenmalige aflossing in plaats van maandbedrag; uitkering naar geldverstrekker","warn");
+  out.wl.push(r);
+  r=R("Credit Life Woonlastenverzekering","cl");
+  rng(r,ld,"Loondienst ≥ 16 uur","Alleen voor werknemers met minimaal 16 uur");
+  r.add(koop?"Koopwoning":"Huurwoning toegestaan");
+  rng(r,a>=18&&a<=61,"Leeftijd binnen 18–61 jaar","Leeftijd buiten 18–61 jaar");
+  rng(r,d>=5,"Looptijd ≥ 5 jaar","Looptijd korter dan 5 jaar");
+  rng(r,end<=70,"Eindleeftijd "+end+" ≤ 70 (uiterlijk AOW-leeftijd)","Eindleeftijd "+end+" hoger dan 70");
+  rng(r,st.maand>=125&&st.maand<=2500,"Maandbedrag binnen € 125 – € 2.500","Maandbedrag buiten € 125 – € 2.500");
+  if(bmi!==null)rng(r,bmi<35,"BMI lager dan 35","BMI vanaf 35 uitgesloten");
+  if(ww)r.add("Werkloosheid alleen i.c.m. AO Compleet; max. "+eur(Math.min(2500,st.maand*1.25))+" per maand","warn");
+  out.wl.push(r);
+  /* Inkomen */
+  r=R("TAF Inkomensbeschermer","taf");
+  rng(r,ld,"Loondienst ≥ 16 uur","Alleen voor werknemers met minimaal 16 uur");
+  rng(r,a>=18&&a<=62,"Leeftijd binnen 18–62 jaar","Leeftijd buiten 18–62 jaar");
+  rng(r,d>=5,"Looptijd ≥ 5 jaar","Looptijd korter dan 5 jaar");
+  rng(r,end<=70,"Eindleeftijd "+end+" ≤ 70","Eindleeftijd "+end+" hoger dan 70");
+  r.add("Maximaal verzekerd maandinkomen (90%): "+eur(Math.min(7500,0.9*st.inkomen))+(0.9*st.inkomen>7500?" — afgetopt op € 7.500":""),0.9*st.inkomen>7500?"warn":"ok");
+  r.add("Nieuwe productie iptiQ stopt per 1-12-2026 (overgang naar Squarelife)","warn");
+  if(ww)r.add("Geen werkloosheidsdekking","warn");
+  out.ink.push(r);
+  r=R("BNP Paribas Cardif","bnp");r.add("Geen inkomensverzekering aangeleverd","no");out.ink.push(r);
+  r=R("Credit Life Inkomensgarantie","cl");
+  rng(r,ld,"Loondienst ≥ 16 uur",st.werk==="zzp"?"Zelfstandigen en DGA's niet verzekerbaar":"Alleen voor werknemers met minimaal 16 uur");
+  rng(r,a>=18&&a<=61,"Leeftijd binnen 18–61 jaar","Leeftijd buiten 18–61 jaar");
+  rng(r,d>=5,"Looptijd ≥ 5 jaar","Looptijd korter dan 5 jaar");
+  rng(r,end<=70,"Eindleeftijd "+end+" ≤ 70","Eindleeftijd "+end+" hoger dan 70");
+  r.add("Maximaal gegarandeerd maandinkomen (100%): "+eur(Math.min(10000,st.inkomen))+(st.inkomen>10000?" — afgetopt op € 10.000":""),st.inkomen>10000?"warn":"ok");
+  if(bmi!==null)rng(r,bmi<35,"BMI lager dan 35","BMI vanaf 35 uitgesloten");
+  if(ww)r.add("Werkloosheid optioneel (Compleet): max. "+eur(0.2*Math.min(10000,st.inkomen))+" per maand","ok");
+  out.ink.push(r);
+  return out;
+}
+let checkHost;
+function drawCheck(){
+  if(!checkHost)return;
+  const o=evalAll(),frag=[];
+  [["orv","Overlijdensrisico"],["wl","Woonlasten / hypotheek bij AO en WW"],["ink","Inkomen bij AO"]].forEach(([k,t])=>{
+    frag.push(el("h3",{text:t}),el("div",{class:"res"},o[k].map(r=>{
+      const no=r.items.some(i=>i[1]==="no"),w=r.items.some(i=>i[1]==="warn");
+      const c=el("div",{class:"rc",style:"border-top-color:"+PCOL[r.p]});
+      c.append(el("h4",{text:r.name}),el("span",{class:"badge "+(no?"b-no":w?"b-warn":"b-ok"),text:no?"Past niet binnen grenzen":w?"Past, met aandachtspunten":"Past binnen grenzen"}),
+        el("ul",{},r.items.map(i=>el("li",{class:i[1]==="ok"?"":i[1],text:(i[1]==="no"?"✕ ":i[1]==="warn"?"⚠ ":"✓ ")+i[0]}))));
+      return c;})));
+  });
+  checkHost.replaceChildren(...frag);
+}
+function viewCheck(){
+  const host=el("div");
+  host.append(el("div",{class:"card"},el("h2",{text:"Klantprofiel"}),el("div",{class:"grid"},
+    fld("Leeftijd bij aanvang (jaren)","leeftijd"),fld("Gewenste looptijd (jaren)","duur"),
+    fld("Dienstverband","werk","sel",[["ld16","Loondienst, 16 uur of meer"],["ld","Loondienst, minder dan 16 uur"],["zzp","Zelfstandige / DGA"]]),
+    fld("Woning","woning","sel",[["koop","Koopwoning met hypotheek"],["huur","Huurwoning"]]),
+    fld("Hypotheekschuld","hyp","eur"),fld("Hypotheek","hypNieuw","sel",[["ja","Nieuw (minder dan 4 maanden oud)"],["nee","Bestaand"]]),
+    fld("Verzekerd bedrag ORV","orv","eur"),fld("Gewenst maandbedrag woonlasten","maand","eur"),
+    fld("Bruto maandinkomen","inkomen","eur"),fld("BMI (optioneel)","bmi"),
+    fld("Werkloosheidsdekking gewenst","ww","sel",[["ja","Ja"],["nee","Nee"]])),
+    el("p",{class:"mute",text:"Indicatieve toets op de harde acceptatiegrenzen uit de stukken. Medische acceptatie, beroep en de AOW-leeftijd van de klant zijn niet meegenomen. Geen acceptatietoezegging en geen advies."})));
+  checkHost=el("div");host.append(checkHost,el("div",{class:"tools",style:"margin-top:14px"},el("button",{class:"btn alt",text:"Afdrukken",onclick:()=>printView("Klantcheck acceptatiegrenzen",checkHost)})));
+  drawCheck();return host;
+}
+
+/* ---------- API / Bronnen ---------- */
+function viewApi(){
+  const cols=[["TAF","","taf"],["BNP Paribas Cardif","","bnp"],["Credit Life","","cl"]];
+  return el("div",{},buildTableRaw(cols,API),el("div",{class:"card",style:"margin-top:16px"},el("h2",{text:"Open punten en tegenstrijdigheden"}),el("ul",{},OPEN.map(t=>el("li",{text:t})))));
+}
+function buildTableRaw(cols,rows){const f=filterTxt,w=onlyWarn;filterTxt="";onlyWarn=false;const t=buildTable(cols,rows);filterTxt=f;onlyWarn=w;return t;}
+function viewSrc(){
+  const names={TAF:"TAF",BNP:"BNP Paribas Cardif",CL:"Credit Life"};
+  const tb=el("tbody",{},Object.entries(SRC).map(([k,s])=>el("tr",{},el("th",{class:"k",text:k}),el("td",{text:names[s[0]]}),el("td",{text:s[1]}),el("td",{text:s[2]==="aangeleverd"?"Aangeleverd per e-mail 12-11-2026":"Opgehaald van "+s[2]+" op 12-11-2026"}))));
+  return el("div",{},el("div",{class:"tblwrap"},el("table",{},el("thead",{},el("tr",{},["Code","Aanbieder","Document","Herkomst"].map(h=>el("th",{text:h})))),tb)),
+    el("p",{class:"mute",text:"De aanbieders blijven zelf verantwoordelijk voor de juistheid en actualiteit van de aangeleverde informatie. Aan productkaarten en informatiebladen kunnen volgens de aanbieders geen rechten worden ontleend."}));
+}
+
+/* ---------- Afdrukken (via window.open i.v.m. iframes) ---------- */
+function printView(title,node){
+  const w=window.open("","_blank");
+  if(!w){alert("Sta pop-ups toe om af te drukken.");return;}
+  const css=document.querySelector("style").textContent;
+  w.document.write("<!DOCTYPE html><html lang='nl'><head><meta charset='utf-8'><title>"+title+"</title><style>"+css+
+    " body{background:#fff;padding:16px} thead th,th.k{position:static} table{min-width:0} th,td{font-size:11px;padding:5px 7px} .tblwrap{overflow:visible;border:0}</style></head><body><h1 style='color:#0b2e5c'>"+title+
+    "</h1><p class='mute'>Interne voorwaardenvergelijking, peildatum 12-11-2026. Geen advies; polisvoorwaarden van de aanbieder zijn leidend.</p>"+node.innerHTML+"</body></html>");
+  w.document.close();w.focus();setTimeout(()=>w.print(),300);
+}
+
+/* ---------- Navigatie ---------- */
+const TABS=[["orv","ORV",()=>viewCat("orv")],["wl","Woonlasten / AO",()=>viewCat("wl")],["ink","Inkomen",()=>viewCat("ink")],["chk","Klantcheck",viewCheck],["api","Tarieven & API",viewApi],["src","Bronnen",viewSrc]];
+let cur="orv";
+function render(){
+  $("#nav").replaceChildren(...TABS.map(t=>el("button",{role:"tab","aria-selected":String(t[0]===cur),text:t[1],onclick:()=>{cur=t[0];render();}})));
+  $("#view").replaceChildren(TABS.find(t=>t[0]===cur)[2]());
+}
+render();
+</script>
+</body>
+</html>
