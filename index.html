@@ -60,6 +60,15 @@ h3{font-size:15px;margin:18px 0 8px;color:var(--navy)}
 details.wijzer{margin-bottom:16px}details.wijzer>summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:16px;margin-bottom:10px}
 footer{color:var(--mute);font-size:12.5px;padding:0 16px 30px}
 .ml{display:none}
+.gs{position:relative;margin:0 0 12px;max-width:720px}
+.gs input{width:100%;padding:11px 40px 11px 14px;border:0;border-radius:8px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.gs input:focus{outline:3px solid var(--accent)}
+.gs button{position:absolute;right:6px;top:5px;width:32px;height:32px;border:0;background:transparent;font-size:22px;line-height:1;color:var(--mute);cursor:pointer}
+.hit{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;font:inherit;color:inherit;cursor:pointer}
+.hit:hover,.hit:focus{border-color:var(--navy)}
+.hit .hp{font-size:12px;color:var(--mute);margin-bottom:2px}.hit .hl{font-weight:700;color:var(--navy)}
+.hit mark,td mark{background:var(--accent);color:var(--navy);padding:0 1px;border-radius:2px}
+tr.flash th.k{background:var(--accent)!important}
 td.best{background:#fff3bf}.tag{display:inline-block;font-size:10.5px;background:var(--accent);color:var(--navy);padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:700}
 ul.pvl{margin:0;padding-left:18px}ul.pvl li{margin-bottom:12px}.pvc{font-size:13.5px;margin-top:3px;padding:5px 9px;border-radius:6px;background:var(--okbg);color:var(--ok)}.pvc.w{background:var(--warnbg);color:var(--warn)}.pvc.u{background:#eef1f5;color:var(--mute);font-style:italic}
 @media (max-width:760px){
@@ -96,6 +105,7 @@ ul.pvl{margin:0;padding-left:18px}ul.pvl li{margin-bottom:12px}.pvc{font-size:13
 <header><div class="wrap">
   <h1>ORV- en AOV-vergelijker</h1>
   <p><b style="color:#FFCD00">Goed voor de klant, goed voor de adviseur.</b> Voorwaarden en acceptatiegrenzen van TAF, BNP Paribas Cardif en Credit Life naast elkaar — peildatum 12 november 2026</p>
+  <div class="gs"><input id="gq" type="search" placeholder="Zoek in alle voorwaarden en informatie, bijv. zelfdoding, 35%, opzegging…" aria-label="Zoeken in alles" autocomplete="off"><button id="gx" type="button" aria-label="Zoekopdracht wissen" hidden>×</button></div>
   <nav id="nav" role="tablist"></nav>
 </div></header>
 <main><div class="wrap">
@@ -755,13 +765,67 @@ function printView(title,node){
   w.document.close();w.focus();setTimeout(()=>w.print(),300);
 }
 
+
+/* ---------- Zoeken door alles ---------- */
+let gq="",IDX=null;
+const norm=t=>String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function buildIndex(){
+  const I=[],add=(tab,pv,place,label,who,text)=>{if(text&&text!=="—")I.push({tab,pv,place,label,who,text,n:norm(label+" "+who+" "+text)});};
+  const TN={orv:"ORV",wl:"Woonlasten / AO",ink:"Inkomen"};
+  for(const k in CATS){const c=CATS[k];let g="";
+    c.rows.forEach(r=>{if(r.length===1){g=r[0];return;}r.slice(1).forEach((cell,i)=>add(k,null,TN[k]+" › "+g,r[0],c.cols[i][0],cell[0]));});
+    SUM[k].forEach((sm,i)=>[["k","Sterk voor de klant"],["l","Bespreek met de klant"],["a","Voor de adviseur"]].forEach(([f,t])=>sm[f].forEach(x=>add(k,null,TN[k]+" › Advieswijzer",t,c.cols[i][0],x))));}
+  const AC=["TAF","BNP Paribas Cardif","Credit Life"];
+  API.forEach(r=>r.slice(1).forEach((cell,i)=>add("api",null,"Tarieven & API",r[0],AC[i],cell[0])));
+  OPEN.forEach(t=>add("api",null,"Tarieven & API","Open punt","",t));
+  for(const k in PV_SET){const st=PV_SET[k],chk=PV_CHK[k];let g="";
+    st.d.rows.forEach(r=>{if(r.g){g=r.g;return;}r.v.forEach((v,i)=>add("pv",k,"Productvergelijker › "+st.t+" › "+g,r.l,st.d.products[i].name,v));
+      const c=chk[r.l];if(c)add("pv",k,"Productvergelijker › "+st.t+" › "+g,r.l,"Controle",c[1]);});
+    PV_AAND[k].forEach(a=>{add("pv",k,"Productvergelijker › "+st.t,"Aandachtspunt","",a[0]);add("pv",k,"Productvergelijker › "+st.t,"Aandachtspunt","Controle",a[2]);});}
+  Object.entries(SRC).forEach(([k,v])=>add("src",null,"Bronnen","Bron "+k,"",v[1]));
+  LINKS.forEach(l=>add("src",null,"Bronnen › Linkcontrole","Link","",l[0]+(l[3]?" — "+l[3]:"")));
+  return I;
+}
+function markUp(node,text,terms){
+  const re=new RegExp("("+terms.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")","gi");
+  text.split(re).forEach((part,i)=>node.append(i%2?el("mark",{text:part}):part));
+}
+function viewSearch(){
+  IDX=IDX||buildIndex();
+  const terms=norm(gq).split(/\s+/).filter(Boolean),raw=gq.trim().split(/\s+/).filter(Boolean);
+  const hits=IDX.filter(it=>terms.every(t=>it.n.includes(t)));
+  const host=el("div",{});
+  host.append(el("h2",{text:hits.length+(hits.length===1?" resultaat":" resultaten")+" voor ‘"+gq.trim()+"’"}));
+  if(!hits.length){host.append(el("p",{class:"mute",text:"Niets gevonden. Probeer een ander woord of minder woorden. Er wordt gezocht in alle tabbladen: de vergelijkingstabellen, de advieswijzer, de productvergelijker met controle, de API-informatie, de open punten en de bronnen."}));return host;}
+  const cnt={};hits.forEach(h=>{const t=h.place.split(" › ")[0];cnt[t]=(cnt[t]||0)+1;});
+  host.append(el("p",{class:"mute",text:Object.entries(cnt).map(([t,n])=>t+": "+n).join(" · ")+". Klik op een resultaat om naar de plek in het tabblad te gaan."}));
+  hits.slice(0,150).forEach(h=>{
+    const b=el("button",{class:"hit",type:"button",onclick:()=>goHit(h)});
+    const l=el("div",{class:"hl"});markUp(l,h.label+(h.who?" — "+h.who:""),raw);
+    const t=el("div",{});markUp(t,h.text,raw);
+    b.append(el("div",{class:"hp",text:h.place}),l,t);host.append(b);});
+  if(hits.length>150)host.append(el("p",{class:"mute",text:"Alleen de eerste 150 resultaten worden getoond; verfijn de zoekopdracht."}));
+  return host;
+}
+function goHit(h){
+  gq="";$("#gq").value="";$("#gx").hidden=true;cur=h.tab;if(h.pv)pvCur=h.pv;filterTxt="";onlyWarn=false;render();
+  const d=$("#view details.wijzer");if(d&&h.place.includes("Advieswijzer"))d.open=true;
+  const th=[...document.querySelectorAll("#view th.k")].find(x=>x.textContent===h.label);
+  const target=th?th.parentElement:$("#view");
+  target.scrollIntoView({block:"center"});
+  if(th){target.classList.add("flash");setTimeout(()=>target.classList.remove("flash"),2200);}
+}
+
 /* ---------- Navigatie ---------- */
 const TABS=[["orv","ORV",()=>viewCat("orv")],["wl","Woonlasten / AO",()=>viewCat("wl")],["ink","Inkomen",()=>viewCat("ink")],["chk","Klantcheck",viewCheck],["pv","Productvergelijker",viewPV],["api","Tarieven & API",viewApi],["src","Bronnen",viewSrc]];
 let cur="orv";
 function render(){
-  $("#nav").replaceChildren(...TABS.map(t=>el("button",{role:"tab","aria-selected":String(t[0]===cur),text:t[1],onclick:()=>{cur=t[0];render();}})));
-  $("#view").replaceChildren(TABS.find(t=>t[0]===cur)[2]());
+  const searching=gq.trim().length>=2;
+  $("#nav").replaceChildren(...TABS.map(t=>el("button",{role:"tab","aria-selected":String(!searching&&t[0]===cur),text:t[1],onclick:()=>{cur=t[0];gq="";$("#gq").value="";$("#gx").hidden=true;render();}})));
+  $("#view").replaceChildren(searching?viewSearch():TABS.find(t=>t[0]===cur)[2]());
 }
+$("#gq").addEventListener("input",e=>{gq=e.target.value;$("#gx").hidden=!gq;render();});
+$("#gx").addEventListener("click",()=>{gq="";$("#gq").value="";$("#gx").hidden=true;render();$("#gq").focus();});
 render();
 </script>
 </body>
