@@ -60,10 +60,19 @@ h3{font-size:15px;margin:18px 0 8px;color:var(--navy)}
 details.wijzer{margin-bottom:16px}details.wijzer>summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:16px;margin-bottom:10px}
 footer{color:var(--mute);font-size:12.5px;padding:0 16px 30px}
 .ml{display:none}
-.kzq{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:6px 18px}
-.kzq label{display:flex;gap:9px;align-items:flex-start;padding:7px 9px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:14px;background:#fff}
-.kzq label:has(input:checked){border-color:var(--navy);background:#fff8d6}
-.kzq input{margin-top:2px;width:18px;height:18px;flex:0 0 auto;accent-color:var(--navy)}
+.kzq{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:6px 18px}
+.kzrow{display:flex;gap:9px;align-items:center;padding:7px 9px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fff}
+label.kzrow{cursor:pointer;align-items:flex-start}
+.kzrow.on{border-color:var(--navy);background:#fff8d6}
+.kzrow input{margin-top:2px;width:18px;height:18px;flex:0 0 auto;accent-color:var(--navy)}
+.kzrow.w{justify-content:space-between}.kzlab{flex:1 1 auto}
+.segs{display:flex;flex:0 0 auto;border:1px solid var(--navy);border-radius:7px;overflow:hidden}
+.seg{border:0;background:#fff;color:var(--navy);font:inherit;font-size:12.5px;font-weight:600;padding:6px 9px;cursor:pointer}
+.seg+.seg{border-left:1px solid var(--navy)}
+.seg[aria-pressed=true]{background:var(--navy);color:#fff}.seg.n[aria-pressed=true]{background:var(--no)}
+.kzt{display:inline-block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;border-radius:4px;padding:1px 6px;margin-right:6px;background:#e6e9ee;color:var(--ink)}
+.kzt.n{background:var(--no);color:#fff}.kzt.g{background:var(--navy);color:#fff}
+@media (max-width:520px){.kzrow.w{flex-direction:column;align-items:stretch}.segs{align-self:flex-start}}
 .rc.kz ul li{margin-bottom:7px}.rc.kz.out{opacity:.8}
 .kzs{margin:2px 0 4px;font-size:14px}.bar{height:8px;background:#e6e9ee;border-radius:5px;overflow:hidden;margin-bottom:8px}.bar i{display:block;height:100%;background:var(--ok)}
 .kzr{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
@@ -426,7 +435,7 @@ function viewCat(key){
   const c=CATS[key],host=el("div");
   const tbl=el("div");
   const draw=()=>{tbl.replaceChildren(buildTable(c.cols,c.rows));};
-  host.append(rating(RSET[key]),wijzer(key),el("div",{class:"tools"},
+  host.append(rating(RSET[key]),kzInTab(key),wijzer(key),el("h3",{text:"Alle voorwaarden naast elkaar"}),el("div",{class:"tools"},
     el("input",{type:"search",placeholder:"Zoek kenmerk of tekst…",value:filterTxt,"aria-label":"Zoeken",oninput:e=>{filterTxt=e.target.value.trim().toLowerCase();draw();}}),
     (()=>{const l=el("label",{class:"chk"}),i=el("input",{type:"checkbox",onchange:e=>{onlyWarn=e.target.checked;draw();}});i.checked=onlyWarn;l.append(i,"Alleen aandachtspunten (⚠)");return l;})(),
     el("button",{class:"btn alt",text:"Afdrukken",onclick:()=>printView(c.title,host)})),tbl,
@@ -607,41 +616,64 @@ function viewPV(){
 
 /* ---------- Keuzehulp ---------- */
 const KZ={"orv": {"t": "ORV", "intro": "Vink aan wat voor deze klant nodig of gewenst is bij een overlijdensrisicoverzekering.", "prods": [["taforv", "TAF ORV (keuze uit vijf verzekeraars)", "taf"], ["bnporv", "BNP Paribas Cardif ORV (via TAF)", "bnp"], ["clorv", "Credit Life ORV", "cl"]], "g": [["Situatie van de klant", [{"t": "De klant heeft geen hypotheek (ORV voor nabestaanden of andere doelen)", "a": [[1, "Ook zonder hypotheek af te sluiten."], [1, "Ook zonder hypotheek af te sluiten."], [-1, "Credit Life vereist een hypotheek (informatieblad)."]]}, {"t": "Zakelijke toepassing (compagnon, keyman)", "a": [[1, "Zakelijke toepassingen staan in de productkaart."], [1, "Via TAF mogelijk."], [-1, "Alleen voor verzekeringnemers met een hypotheek."]]}, {"t": "Verzekerd bedrag lager dan € 25.000", "a": [[1, "Vanaf € 2.500 (Zurich vanaf € 100.000)."], [1, "Vanaf € 2.500."], [-1, "Minimaal € 25.000."]]}, {"t": "Looptijd korter dan 5 jaar", "a": [[1, "Vanaf 1 jaar (Zurich vanaf 5 jaar)."], [1, "Vanaf 1 jaar."], [-1, "Minimaal 5 jaar."]]}, {"t": "Looptijd langer dan 40 jaar", "a": [[1, "Tot 50 jaar (niet bij BNP en Zurich)."], [-1, "Maximaal 40 jaar."], [1, "Tot 50 jaar."]]}, {"t": "Zware medische voorgeschiedenis: vangnet gewenst", "a": [[1, "Maatwerk ORV (Quantum Leben) als vangnet in het aanvraagproces."], [0, "Geen eigen vangnet; wel via het TAF-aanvraagproces."], [0, "Geen vangnetproduct genoemd."]]}, {"t": "De klant reist of werkt in gebieden met een negatief reisadvies", "a": [[1, "Wereldwijde dekking; geen uitsluiting voor risicogebieden in de voorwaarden."], [1, "Wereldwijde dekking; geen uitsluiting voor risicogebieden."], [0, "Geen uitkering bij overlijden door de reden van een negatief reisadvies."]]}]], ["Dekking", [{"t": "Voortijdige uitkering bij terminale ziekte", "a": [[1, "50%, max. € 100.000, tot 65 jaar."], [1, "50%, max. € 100.000, tot 65 jaar."], [0, "Niet geregeld in de voorwaarden."]]}, {"t": "Later verhogen zonder medische waarborgen (optieclausule)", "a": [[1, "Jaarlijks 15%; bij Chubb en Quantum Leben zonder totaalgrens van € 100.000."], [0.5, "Jaarlijks 15%, maar alle verhogingen samen max. € 100.000."], [0, "Geen optieclausule; verhogen alleen als aanpassing."]]}, {"t": "Premievrijstelling bij arbeidsongeschiktheid meeverzekeren", "a": [[1, "Mogelijk bij Chubb, iptiQ en Quantum Leben."], [0, "Niet mogelijk bij BNP."], [0, "Niet geregeld."]]}, {"t": "Ongevallendekking of kinderdekking meeverzekeren", "a": [[1, "Mogelijk bij Chubb, iptiQ en Quantum Leben."], [0, "Niet mogelijk bij BNP."], [0, "Niet geregeld."]]}, {"t": "Combinatie van gelijkblijvende en dalende dekking op één polis", "a": [[1, "Via BNP Personal (productkaart)."], [1, "Combinatiedekking bij Personal (productkaart)."], [0, "Niet genoemd."]]}, {"t": "Stijgend verzekerd bedrag", "a": [[0.5, "Alleen bij Quantum Leben Personal (productkaart)."], [0, "Niet mogelijk."], [0, "Niet mogelijk."]]}, {"t": "Voortzetting na echtscheiding zonder nieuwe gezondheidsverklaring", "a": [[0.5, "Staat in de productkaart, niet in de polisvoorwaarden."], [0.5, "Staat in de productkaart, niet in de polisvoorwaarden."], [0, "Niet geregeld."]]}]], ["Premie", [{"t": "Premie ineens betalen (koopsom)", "a": [[0.5, "Alleen bij Quantum Leben Personal."], [0, "Alleen per maand of per jaar."], [0, "Niet mogelijk."]]}, {"t": "Premie per kwartaal of halfjaar betalen", "a": [[0, "Alleen per maand of per jaar."], [0, "Alleen per maand of per jaar."], [0.5, "Volgens het informatieblad; de voorwaarden noemen alleen maandpremie."]]}, {"t": "Verkorte premieduur bij dalende dekking", "a": [[1, "Special-variant."], [1, "Special: 2/3 van de looptijd of 5 jaar korter."], [1, "Optioneel bij dalende dekking (informatieblad)."]]}]]]}, "wl": {"t": "Woonlasten / AO", "intro": "Vink aan wat voor deze klant nodig of gewenst is bij het afdekken van woonlasten of hypotheek bij arbeidsongeschiktheid en werkloosheid.", "prods": [["tafmlb", "TAF Maandlastbeschermer", "taf"], ["clwlv", "Credit Life Woonlastenverzekering", "cl"], ["bnphav", "BNP Paribas Cardif Hypotheek Aflos Verzekering", "bnp"], ["clarv", "Credit Life ARV", "cl"]], "g": [["Situatie van de klant", [{"t": "De klant huurt", "a": [[-1, "Alleen voor klanten met een eigen woning."], [1, "Ook voor huurders."], [-1, "Vereist een hypotheek op de eigen woning."], [-1, "Vereist een hypotheek bij afsluiten."]]}, {"t": "De klant is 60 of 61 jaar bij aanvang", "a": [[1, "Tot 62 jaar."], [1, "Tot en met 61 jaar (informatieblad)."], [-1, "AO-dekking tot 60 jaar (productspecs)."], [1, "Tot en met 61 jaar (informatieblad)."]]}, {"t": "Dekking nodig tot de AOW-leeftijd (na 67 jaar)", "a": [[1, "Tot AOW-leeftijd, uiterlijk 70 jaar."], [1, "Tot AOW-leeftijd, uiterlijk 70 jaar."], [0, "Eindigt bij 67 jaar."], [1, "Tot AOW-leeftijd, uiterlijk 70 jaar."]]}, {"t": "BMI tussen 32 en 35", "a": [[0.5, "Geen BMI-grens genoemd; medische beoordeling per geval."], [1, "Grens ligt bij 35 (informatieblad)."], [-1, "BMI boven 32 wordt niet geaccepteerd (productspecs)."], [1, "Grens ligt bij 35 (informatieblad)."]]}]], ["Soort uitkering", [{"t": "Maandelijkse uitkering om de lasten te blijven betalen", "a": [[1, "Vast maandbedrag."], [1, "Vast maandbedrag."], [-1, "Eenmalige aflossing; alleen de werkloosheidsdekking is maandelijks."], [-1, "Eenmalige uitkering."]]}, {"t": "Eenmalige uitkering om de hypotheek blijvend te verlagen", "a": [[-1, "Maandbedrag."], [-1, "Maandbedrag."], [1, "Eenmalig volgens uitkeringsschema, bij elke WIA-uitkering."], [1, "Eenmalig, alleen bij een IVA-uitkering."]]}, {"t": "Uitkering vrij besteedbaar", "a": [[1, "Aan de verzekerde."], [1, "Aan de verzekerde."], [0, "Naar de geldverstrekker; anders mag de uitkering met 50% worden verlaagd."], [1, "Aan de verzekerde, vrij besteedbaar (informatieblad)."]]}, {"t": "Uitkering ook bij gedeeltelijke arbeidsongeschiktheid (vanaf 35%)", "a": [[1, "Vanaf 35%."], [1, "Vanaf 35%."], [1, "Bij elke WIA-uitkering (minimaal 35%)."], [0, "Alleen bij IVA: duurzaam en volledig arbeidsongeschikt."]]}, {"t": "Volledig bedrag bij gedeeltelijke arbeidsongeschiktheid", "a": [[1, "Bij keuze voor uitkeringstype ‘volledig’."], [1, "Altijd het volledige maandbedrag."], [1, "Volledig bedrag volgens schema."], [0, "Geen uitkering bij gedeeltelijke arbeidsongeschiktheid."]]}, {"t": "Uitkering al na 180 dagen (kort eigen risico)", "a": [[1, "Eigen risico 180, 365 of 730 dagen."], [0, "Eigen risico 365 of 730 dagen."], [0, "Uitkering pas bij start WIA."], [0, "Uitkering pas bij een IVA-uitkering."]]}, {"t": "Uitkering zolang de arbeidsongeschiktheid duurt, tot de einddatum", "a": [[1, "Bij keuze ‘tot einde looptijd’."], [1, "Tot einde verzekering."], [0, "Eenmalig."], [0, "Eenmalig."]]}, {"t": "Geen inloopperiode na de gezondheidsverklaring", "a": [[1, "Geen inloopperiode."], [1, "Geen inloopperiode."], [0, "30 dagen na ontvangst gezondheidsverklaring, behalve bij ongeval."], [1, "Geen inloopperiode."]]}]], ["Mogelijkheden", [{"t": "Werkloosheid meeverzekeren", "a": [[0.5, "Alleen via Quantum Leben; max. 24 maanden per verzekering."], [1, "Bij Compleet; uitkering vanaf de eerste WW-dag."], [0.5, "Alleen bij nieuwe hypotheek; pas na afloop van de WW; max. 12 maanden."], [0, "Geen werkloosheidsdekking."]]}, {"t": "Alleen ongevallendekking (beperkte dekking)", "a": [[0, "Niet mogelijk."], [1, "Variant Basis."], [0, "Niet mogelijk."], [0, "Niet mogelijk."]]}, {"t": "Bruto-variant (premie aftrekbaar)", "a": [[1, "Keuze netto of bruto."], [1, "Keuze netto of bruto voor de AO-dekking."], [0, "Alleen netto."], [0, "Alleen netto."]]}, {"t": "Verzekerd bedrag later verhogen zonder medische beoordeling", "a": [[1, "Tot 20% (voorwaarden verschillen per verzekeraar)."], [0, "Geen regeling."], [0, "Alleen verlagen."], [0, "Alleen via een nieuwe verzekering met medische beoordeling."]]}, {"t": "Extra uitkering bij IVA en ziekenhuisdaggeld", "a": [[0, "Niet geregeld."], [1, "€ 3.000 bij IVA en € 35 per ziekenhuisdag."], [0, "Niet geregeld."], [0, "Niet geregeld."]]}, {"t": "Second opinion en medische hulp inbegrepen", "a": [[1, "Royal Doctors (productkaart)."], [0, "Niet inbegrepen."], [0, "Niet inbegrepen."], [0, "Niet inbegrepen."]]}, {"t": "Premie en voorwaarden niet jaarlijks per contract wijzigbaar", "a": [[1, "Alleen en-bloc onder voorwaarden."], [1, "Alleen en-bloc onder voorwaarden."], [0, "Jaarcontract: wijziging per vervaldatum mogelijk."], [1, "Alleen en-bloc onder voorwaarden (voorwaarden)."]]}]]]}, "ink": {"t": "Inkomen", "intro": "Vink aan wat voor deze klant nodig of gewenst is bij het aanvullen van het inkomen bij arbeidsongeschiktheid.", "prods": [["taftib", "TAF Inkomensbeschermer", "taf"], ["clig", "Credit Life Inkomensgarantie", "cl"]], "g": [["Situatie van de klant", [{"t": "De klant is zelfstandige of DGA", "a": [[-1, "Alleen voor werknemers die premieplichtig zijn voor de werknemersverzekeringen."], [-1, "Zelfstandigen en DGA’s zijn niet verzekerbaar."]]}, {"t": "De klant is 62 jaar bij aanvang", "a": [[1, "Tot 62 jaar (productkaart; beroepenlijst van toepassing)."], [-1, "Tot en met 61 jaar (informatieblad)."]]}, {"t": "BMI van 35 of hoger", "a": [[0.5, "Geen BMI-grens genoemd; medische beoordeling per geval."], [-1, "Vanaf 35 uitgesloten (informatieblad)."]]}, {"t": "De klant reist of werkt in gebieden met een negatief reisadvies", "a": [[1, "Geen uitsluiting voor negatief reisadvies."], [0, "Uitsluiting bij arbeidsongeschiktheid door de reden van een negatief reisadvies."]]}, {"t": "Ingangsdatum na 1 december 2026 op de huidige voorwaarden", "a": [[0, "Nieuwe productie via iptiQ stopt per 1-12-2026; daarna Squarelife met nieuwe voorwaarden."], [1, "Geen wijziging aangekondigd."]]}]], ["Hoogte van de dekking", [{"t": "Meer dan € 7.500 per maand verzekeren", "a": [[0, "Verzekerd maandinkomen maximaal € 7.500."], [1, "Maandinkomen tot € 10.000."]]}, {"t": "Meer dan 90% van het inkomen verzekeren", "a": [[0, "70 tot 90%."], [1, "70 tot 100%."]]}, {"t": "Gegarandeerde minimumuitkering", "a": [[0, "Niet geregeld."], [1, "Minimumuitkering, begrensd op inkomen × verzekerd percentage."]]}, {"t": "Indexatie van de uitkering van meer dan 2% per jaar mogelijk", "a": [[1, "Volgt de WIA tot 3%."], [0, "Maximaal 2% per jaar."]]}, {"t": "Uitkering al in het tweede ziektejaar", "a": [[1, "Optioneel (productkaart: dan minimaal 75% verzekeren)."], [1, "Optioneel."]]}]], ["Mogelijkheden", [{"t": "Werkloosheid meeverzekeren", "a": [[0, "Niet beschikbaar."], [1, "Optioneel, tot 20% van het bruto maandinkomen."]]}, {"t": "Jaarlijks verhogen zonder gezondheidsvragen", "a": [[1, "10% per jaar, vanaf 12 maanden na ingang."], [0.5, "Naar rato van inkomensstijging; verzoek moet aan de acceptatiecriteria voldoen."]]}, {"t": "Alleen ongevallendekking, zonder gezondheidsverklaring", "a": [[0, "Niet mogelijk."], [1, "Variant Basis."]]}, {"t": "Extra uitkering bij IVA en ziekenhuisdaggeld", "a": [[0, "Niet geregeld."], [1, "€ 3.000 bij IVA en € 35 per ziekenhuisdag."]]}, {"t": "Vergoeding van re-integratiekosten", "a": [[1, "Mogelijk na goedkeuring vooraf."], [0, "Niet geregeld."]]}, {"t": "Second opinion en medische hulp inbegrepen", "a": [[1, "Royal Doctors (productkaart)."], [0, "Niet inbegrepen."]]}]]]}};
-let kzCur="orv";const kzSel={orv:new Set(),wl:new Set(),ink:new Set()};
-function kzResults(){
-  const k=KZ[kzCur],sel=kzSel[kzCur],qs=k.g.flatMap(g=>g[1]),host=el("div",{});
-  if(!sel.size){host.append(el("div",{class:"card"},el("p",{class:"mute",style:"margin:0",text:"Nog niets aangevinkt. Kies hierboven wat voor deze klant nodig of gewenst is; de producten worden dan gerangschikt op hoe goed ze daarop aansluiten."})));return host;}
-  const res=k.prods.map((pr,i)=>{let sc=0;const items=[],ko=[];
-    [...sel].sort((a,b)=>a-b).forEach(q=>{const a=qs[q].a[i];if(a[0]<0)ko.push(qs[q].t);else sc+=a[0];items.push([qs[q].t,a[0],a[1]]);});
-    return{pr,sc,ko,items};}).sort((a,b)=>(a.ko.length-b.ko.length)||(b.sc-a.sc));
-  const live=res.filter(r=>!r.ko.length),top=live.length?live[0].sc:-1,tie=live.filter(r=>r.sc===top).length;
-  host.append(el("h3",{text:"Uitkomst op basis van "+sel.size+(sel.size===1?" gekozen wens":" gekozen wensen")}));
-  if(!live.length)host.append(el("div",{class:"notice"},el("b",{text:"Geen product past: "}),"elk product valt af op minstens één aangevinkt punt. Bekijk per product waarom."));
+let kzCur="orv";const kzSel={orv:new Map(),wl:new Map(),ink:new Map()};
+const KZL={f:"Situatie",n:"Noodzakelijk",g:"Gewenst"};
+function kzFlat(k){const o=[];k.g.forEach((g,gi)=>g[1].forEach(q=>o.push({q,fact:gi===0})));return o;}
+function kzResults(cat){
+  const k=KZ[cat],sel=kzSel[cat],qs=kzFlat(k),host=el("div",{});
+  if(!sel.size){host.append(el("div",{class:"card"},el("p",{class:"mute",style:"margin:0",text:"Nog niets gekozen. Geef hierboven aan wat op de klant van toepassing is en welke wensen noodzakelijk of gewenst zijn; de producten worden dan gerangschikt."})));return host;}
+  const keys=[...sel.keys()].sort((a,b)=>a-b),cnt=t=>keys.filter(i=>sel.get(i)===t).length,nN=cnt("n"),nG=cnt("g"),nF=cnt("f");
+  const res=k.prods.map((pr,i)=>{let sn=0,sg=0,half=0;const items=[],ko=[];
+    keys.forEach(qi=>{const t=sel.get(qi),a=qs[qi].q.a[i],v=Math.max(a[0],0);let st;
+      if(t==="f"){st=a[0]<0?"ko":v===1?"ok":v===0.5?"half":"no";if(a[0]<0)ko.push(qi);}
+      else if(t==="n"){st=v===1?"ok":v===0.5?"half":"ko";if(v===0)ko.push(qi);else{sn+=v;if(v===0.5)half++;}}
+      else{st=v===1?"ok":v===0.5?"half":"no";sg+=v;}
+      items.push([t,qs[qi].q.t,st,a[1]]);});
+    return{pr,sn,sg,half,ko,items,tot:sn*2+sg};}).sort((a,b)=>(a.ko.length-b.ko.length)||(b.tot-a.tot)||(a.half-b.half));
+  const live=res.filter(r=>!r.ko.length),top=live.length?live[0].tot:-1,th=live.length?live[0].half:0,tie=live.filter(r=>r.tot===top&&r.half===th).length;
+  host.append(el("h3",{text:"Uitkomst"}),el("p",{class:"mute",text:[nF?nF+" situatie"+(nF>1?"s":""):"",nN?nN+" noodzakelijk":"",nG?nG+" gewenst":""].filter(Boolean).join(" · ")+". Een product valt af als het een noodzakelijke wens niet kan invullen of niet past bij de situatie van de klant."}));
+  if(!live.length)host.append(el("div",{class:"notice"},el("b",{text:"Geen product past: "}),"elk product valt af op minstens één noodzakelijk punt of op de situatie van de klant. Bekijk per product waarom, of zet een noodzakelijke wens op gewenst."));
   host.append(el("div",{class:"res"},res.map(r=>{
-    const c=el("div",{class:"rc kz"+(r.ko.length?" out":""),style:"border-top-color:"+PCOL[r.pr[2]]});
-    const best=!r.ko.length&&r.sc===top&&top>0;
+    const out=r.ko.length>0,best=!out&&r.tot===top&&r.half===th&&(nN+nG>0?top>0:true);
+    const c=el("div",{class:"rc kz"+(out?" out":""),style:"border-top-color:"+PCOL[r.pr[2]]});
     c.append(el("h4",{text:r.pr[1]}));
-    c.append(el("span",{class:"badge "+(r.ko.length?"b-no":best?"b-ok":"b-warn"),text:r.ko.length?"Valt af":best?(tie>1?"Sluit even goed aan (gedeeld hoogste)":"Sluit het best aan"):"Sluit minder goed aan"}));
-    if(!r.ko.length){c.append(el("div",{class:"kzs"},el("b",{text:String(r.sc).replace(".",",")+" van "+sel.size}),el("span",{class:"mute",text:" gekozen wensen (deels telt half)"})),
-      el("div",{class:"bar"},el("i",{style:"width:"+(r.sc/sel.size*100)+"%"})));}
-    c.append(el("ul",{},r.items.map(it=>{const li=el("li",{class:it[1]<0||it[1]===0?"no":it[1]===0.5?"warn":""});
-      li.append(el("b",{text:(it[1]<0?"✕ Valt af: ":it[1]===0?"✕ ":it[1]===0.5?"◐ ":"✓ ")+it[0]}),el("div",{class:"mute",text:it[2]}));return li;})));
+    c.append(el("span",{class:"badge "+(out?"b-no":best?(r.half?"b-warn":"b-ok"):"b-warn"),text:out?"Valt af":best?(tie>1?"Sluit even goed aan (gedeeld hoogste)":"Sluit het best aan"):"Sluit minder goed aan"}));
+    if(!out){
+      if(nN)c.append(el("div",{class:"kzs"},el("b",{text:"Noodzakelijk: "+String(r.sn).replace(".",",")+" van "+nN}),r.half?el("span",{class:"mute",text:" — "+r.half+" slechts deels"}):""),el("div",{class:"bar"},el("i",{style:"width:"+(r.sn/nN*100)+"%"+(r.half?";background:var(--accent)":"")})));
+      if(nG)c.append(el("div",{class:"kzs"},el("b",{text:"Gewenst: "+String(r.sg).replace(".",",")+" van "+nG})),el("div",{class:"bar"},el("i",{style:"width:"+(r.sg/nG*100)+"%"})));
+    }
+    c.append(el("ul",{},r.items.map(it=>{const li=el("li",{class:it[2]==="ko"||it[2]==="no"?"no":it[2]==="half"?"warn":""});
+      li.append(el("span",{class:"kzt "+it[0],text:KZL[it[0]]}),el("b",{text:(it[2]==="ko"?"✕ Valt af: ":it[2]==="no"?"✕ ":it[2]==="half"?"◐ ":"✓ ")+it[1]}),el("div",{class:"mute",text:it[3]}));return li;})));
     if(RATE[r.pr[0]])c.append(el("div",{class:"kzr"},el("span",{class:"mute",text:"Sterren voorwaarden: "}),stars(rStar(RATE[r.pr[0]]),true)));
     return c;})));
-  host.append(el("p",{class:"mute",text:"De keuzehulp vergelijkt alleen of een product de aangevinkte wensen kan invullen volgens de voorwaarden en productinformatie. Elke wens telt even zwaar; premie, medische acceptatie en de persoonlijke situatie zijn niet meegewogen. De uitkomst is een hulpmiddel bij uw advies en geen advies op zich."}));
+  host.append(el("p",{class:"mute",text:"Rangschikking: producten die afvallen staan achteraan; daarna telt een noodzakelijke wens dubbel en een gewenste wens enkel, en ‘deels’ telt half. Bij een gelijke stand gaat het product voor dat alle noodzakelijke wensen volledig invult. Een noodzakelijke wens die maar deels wordt ingevuld laat het product niet afvallen, maar wordt geel gemarkeerd. Premie, medische acceptatie en de persoonlijke situatie zijn niet meegewogen. De uitkomst is een hulpmiddel bij uw advies en geen advies op zich."}));
   return host;
 }
-function viewKZ(){
-  const k=KZ[kzCur],host=el("div"),out=el("div",{id:"kzout"});let n=0;
-  host.append(el("div",{class:"tools"},Object.keys(KZ).map(x=>el("button",{class:"btn"+(x===kzCur?"":" alt"),text:KZ[x].t,onclick:()=>{kzCur=x;render();}})),
-    el("button",{class:"btn alt",text:"Wis keuzes",onclick:()=>{kzSel[kzCur].clear();render();}}),
-    el("button",{class:"btn alt",text:"Afdrukken",onclick:()=>printView("Keuzehulp — "+k.t,out)})));
-  const card=el("div",{class:"card"},el("h2",{text:"Keuzehulp "+k.t}),el("p",{class:"mute",text:k.intro}));
-  k.g.forEach(g=>{card.append(el("h3",{text:g[0]}));const box=el("div",{class:"kzq"});
-    g[1].forEach(q=>{const i=n++,cb=el("input",{type:"checkbox",id:"kz"+i});cb.checked=kzSel[kzCur].has(i);
-      cb.addEventListener("change",()=>{cb.checked?kzSel[kzCur].add(i):kzSel[kzCur].delete(i);out.replaceChildren(kzResults());});
-      box.append(el("label",{for:"kz"+i},cb,el("span",{text:q.t})));});card.append(box);});
-  host.append(card,out);out.append(kzResults());return host;
+function kzPanel(cat,inTab){
+  const k=KZ[cat],host=el("div"),out=el("div",{class:"kzout"}),sel=kzSel[cat];let n=0;
+  const upd=()=>out.replaceChildren(kzResults(cat));
+  const tools=el("div",{class:"tools"});
+  if(!inTab)Object.keys(KZ).forEach(x=>tools.append(el("button",{class:"btn"+(x===cat?"":" alt"),text:KZ[x].t,onclick:()=>{kzCur=x;render();}})));
+  tools.append(el("button",{class:"btn alt",text:"Wis keuzes",onclick:()=>{sel.clear();render();}}),el("button",{class:"btn alt",text:"Keuzehulp afdrukken",onclick:()=>printView("Keuzehulp — "+k.t,out)}));
+  const card=el("div",{class:"card"},inTab?"":el("h2",{text:"Keuzehulp "+k.t}),el("p",{class:"mute",text:k.intro+" Bij ‘Situatie van de klant’ vinkt u aan wat van toepassing is. Bij de wensen kiest u per wens Gewenst of Noodzakelijk; klik nogmaals om de keuze weg te halen."}));
+  k.g.forEach((g,gi)=>{card.append(el("h3",{text:g[0]}));const box=el("div",{class:"kzq"});
+    g[1].forEach(q=>{const i=n++;
+      if(gi===0){const cb=el("input",{type:"checkbox",id:"kz"+i});cb.checked=sel.has(i);
+        const row=el("label",{for:"kz"+i,class:"kzrow"+(sel.has(i)?" on":"")},cb,el("span",{text:q.t}));
+        cb.addEventListener("change",()=>{cb.checked?sel.set(i,"f"):sel.delete(i);row.classList.toggle("on",cb.checked);upd();});box.append(row);}
+      else{const r=el("div",{class:"kzrow w"+(sel.has(i)?" on":""),role:"group","aria-label":q.t}),bs={};
+        const set=t=>{sel.get(i)===t?sel.delete(i):sel.set(i,t);for(const x in bs)bs[x].setAttribute("aria-pressed",String(sel.get(i)===x));r.classList.toggle("on",sel.has(i));upd();};
+        [["g","Gewenst"],["n","Noodzakelijk"]].forEach(([t,l])=>{bs[t]=el("button",{type:"button",class:"seg "+t,"aria-pressed":String(sel.get(i)===t),text:l,onclick:()=>set(t)});});
+        r.append(el("span",{class:"kzlab",text:q.t}),el("span",{class:"segs"},bs.g,bs.n));box.append(r);}
+    });card.append(box);});
+  host.append(tools,card,out);upd();return host;
+}
+function viewKZ(){return kzPanel(kzCur,false);}
+let kzOpen={};
+function kzInTab(cat){
+  const d=el("details",{class:"wijzer kzd"},el("summary",{text:"Keuzehulp: welke producten sluiten aan op de situatie en wensen van de klant?"}),kzPanel(cat,true));
+  d.open=cat in kzOpen?kzOpen[cat]:(kzSel[cat].size>0||window.innerWidth>760);
+  d.addEventListener("toggle",()=>{kzOpen[cat]=d.open;});return d;
 }
 
 /* ---------- API / Bronnen ---------- */
