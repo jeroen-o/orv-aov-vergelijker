@@ -59,7 +59,35 @@ h3{font-size:15px;margin:18px 0 8px;color:var(--navy)}
 .sum ul{margin:0 0 4px;padding-left:18px;list-style:disc;font-size:13.5px}
 details.wijzer{margin-bottom:16px}details.wijzer>summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:16px;margin-bottom:10px}
 footer{color:var(--mute);font-size:12.5px;padding:0 16px 30px}
-@media (max-width:640px){h1{font-size:19px}nav button{padding:9px 10px;font-size:14px}}
+.ml{display:none}
+@media (max-width:760px){
+  h1{font-size:19px}
+  header{padding:14px 12px 0}
+  nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -12px;padding:0 12px}
+  nav::-webkit-scrollbar{display:none}
+  nav button{padding:10px 12px;font-size:14px;white-space:nowrap;flex:0 0 auto}
+  main{padding:14px 12px 32px}
+  .notice{font-size:13px;padding:9px 11px}
+  .tools{gap:8px}.tools input[type=search]{flex:1 1 100%}
+  .fld input,.fld select,.tools input[type=search]{font-size:16px}
+  .grid{grid-template-columns:1fr 1fr}
+  .res{grid-template-columns:1fr}
+  .tblwrap{overflow:visible;border:0;background:transparent;border-radius:0}
+  table{min-width:0;display:block}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{display:block;background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden}
+  tbody tr.grp{border:0;border-radius:8px;margin-top:16px}
+  tr.grp th{display:block}
+  th.k{display:block;position:static;width:auto;background:#eaf0f8;color:var(--navy);font-size:14.5px;border-bottom:1px solid var(--line)}
+  td{display:block;padding:8px 12px;font-size:14px;overflow-wrap:anywhere}
+  tbody tr td:last-child{border-bottom:0}
+  .ml{display:block;font-size:11.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--mute);margin-bottom:2px;font-style:normal}
+  td.warn::before{content:""}
+  td.warn .ml::after{content:"  ⚠";color:var(--warn)}
+  .src{white-space:normal}
+}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -285,7 +313,7 @@ function wijzer(key){
   const d=el("details",{class:"wijzer"},el("summary",{text:"Advieswijzer: wat betekent dit voor klant en adviseur?"}),
     el("div",{class:"res"},c.cols.map((col,i)=>{const s=SUM[key][i];
       return el("div",{class:"rc sum",style:"border-top-color:"+PCOL[col[2]]},el("h4",{text:col[0]}),blk("k","Sterk voor de klant",s.k),blk("l","Bespreek met de klant",s.l),blk("a","Voor de adviseur",s.a));})));
-  d.open=true;return d;
+  d.open=window.innerWidth>760;return d;
 }
 
 /* ---------- Vergelijkingstabel ---------- */
@@ -299,8 +327,9 @@ function buildTable(cols,rows){
     if(filterTxt&&!txt.includes(filterTxt))return;
     if(onlyWarn&&!r.slice(1).some(c=>c[2]==="w"))return;
     if(pendingGrp){tb.append(el("tr",{class:"grp"},el("th",{colspan:cols.length+1,text:pendingGrp})));pendingGrp=null;}
-    tb.append(el("tr",{},el("th",{class:"k",scope:"row",text:r[0]}),r.slice(1).map(c=>{
-      const td=el("td",{class:c[2]==="w"?"warn":c[2]==="n"?"na":""});td.append(c[0]," ",srcTag(c[1]));return td;})));
+    tb.append(el("tr",{},el("th",{class:"k",scope:"row",text:r[0]}),r.slice(1).map((c,i)=>{
+      const td=el("td",{class:c[2]==="w"?"warn":c[2]==="n"?"na":""});const col=cols[i]||["","",""];
+      td.append(el("span",{class:"ml"},el("span",{class:"pv",style:"background:"+(PCOL[col[2]]||"transparent")}),col[0]),c[0]," ",srcTag(c[1]));return td;})));
   });
   if(!tb.children.length)tb.append(el("tr",{},el("td",{colspan:cols.length+1,class:"na",text:"Geen kenmerken gevonden."})));
   return el("div",{class:"tblwrap"},el("table",{},el("thead",{},el("tr",{},el("th",{class:"k",text:"Kenmerk"}),
@@ -457,8 +486,8 @@ function viewApi(){
 function buildTableRaw(cols,rows){const f=filterTxt,w=onlyWarn;filterTxt="";onlyWarn=false;const t=buildTable(cols,rows);filterTxt=f;onlyWarn=w;return t;}
 function viewSrc(){
   const names={TAF:"TAF",BNP:"BNP Paribas Cardif",CL:"Credit Life"};
-  const tb=el("tbody",{},Object.entries(SRC).map(([k,s])=>el("tr",{},el("th",{class:"k",text:k}),el("td",{text:names[s[0]]}),el("td",{text:s[1]}),el("td",{text:s[2]==="aangeleverd"?"Aangeleverd per e-mail 12-11-2026":"Opgehaald van "+s[2]+" op 12-11-2026"}))));
-  return el("div",{},el("div",{class:"tblwrap"},el("table",{},el("thead",{},el("tr",{},["Code","Aanbieder","Document","Herkomst"].map(h=>el("th",{text:h})))),tb)),
+  const tb=el("tbody",{},Object.entries(SRC).map(([k,s])=>el("tr",{},el("th",{class:"k",text:k+" · "+names[s[0]]}),el("td",{text:s[1]}),el("td",{class:"na",text:s[2]==="aangeleverd"?"Aangeleverd per e-mail 12-11-2026":"Opgehaald van "+s[2]+" op 12-11-2026"}))));
+  return el("div",{},el("div",{class:"tblwrap"},el("table",{},el("thead",{},el("tr",{},["Code · aanbieder","Document","Herkomst"].map(h=>el("th",{text:h})))),tb)),
     el("h2",{style:"margin-top:22px",text:"Linkcontrole"}),el("p",{class:"mute",text:LINKSUM}),
     el("div",{class:"tblwrap"},el("table",{},el("thead",{},el("tr",{},["Status","Soort","Link","Opmerking"].map(h=>el("th",{text:h})))),
       el("tbody",{},LINKS.slice().sort((a,b)=>(a[1]==="200")-(b[1]==="200")).map(r=>el("tr",{},el("td",{class:r[1]==="200"?"":"warn",text:r[1]==="200"?"OK":r[1]==="000"?"Geen antwoord":r[1]}),el("td",{text:r[2]}),
